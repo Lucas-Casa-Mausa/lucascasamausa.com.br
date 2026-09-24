@@ -10,11 +10,7 @@ export const PERSON = {
 } as const;
 
 /**
- * Foto do "Sobre" em /public. O original tem 400×400: a exibição é limitada a 400px para não ampliar.
- * Para trocar por uma maior: substitua o arquivo e atualize width/height.
+ * Foto do "Sobre" em /public. Enquanto for null, a seção mostra o monograma.
+ * Para ativar: salve a foto em public/images/ e preencha src/width/height reais (exibição limitada a 400px).
  */
-export const ABOUT_PHOTO: { src: string; width: number; height: number } | null = {
-  src: '/images/lucas.jpg',
-  width: 400,
-  height: 400,
-};
+export const ABOUT_PHOTO: { src: string; width: number; height: number } | null = null;

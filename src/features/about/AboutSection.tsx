@@ -21,7 +21,7 @@ export async function AboutSection() {
               className="h-auto w-full contrast-125 grayscale"
             />
           ) : (
-            <Monogram label={t('photoAlt')} />
+            <Monogram label={t('monogramAlt')} />
           )}
         </figure>
         <div className="md:col-span-7">

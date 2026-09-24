@@ -3,7 +3,7 @@ export type Field = (x: number, y: number) => number;
 export type Pointer = { x: number; y: number; active: boolean };
 export type EngineConfig = { width: number; height: number; count: number; dpr: number; rng: () => number };
 
-export const PACKET_COUNT = { full: 38, lite: 22 } as const;
+export const PACKET_COUNT = { full: 24, lite: 14 } as const;
 
 /** mulberry32: determinístico, para testes reproduzíveis. */
 export function createRng(seed: number): () => number {

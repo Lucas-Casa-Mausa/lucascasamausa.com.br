@@ -23,7 +23,7 @@ const empty = () => 0;
 
 describe('engine dos pacotes', () => {
   it('quantidades por nível seguem a spec', () => {
-    expect(PACKET_COUNT).toEqual({ full: 38, lite: 22 });
+    expect(PACKET_COUNT).toEqual({ full: 24, lite: 14 });
   });
 
   it('rng com a mesma semente repete a sequência', () => {

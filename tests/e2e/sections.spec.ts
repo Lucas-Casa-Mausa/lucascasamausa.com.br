@@ -8,10 +8,11 @@ test('laboratório lista os três itens, com link só onde há repositório púb
   await expect(lab.getByRole('link', { name: /vulnlab/ })).toHaveCount(0);
 });
 
-test('sobre tem retrato (ou monograma) com texto alternativo e os três princípios', async ({ page }) => {
+test('sobre tem o monograma (sem foto por ora) e os três princípios', async ({ page }) => {
   await page.goto('/');
   const about = page.locator('#sobre');
-  await expect(about.getByRole('img', { name: 'Retrato de Lucas Casa Mausa em preto e branco' })).toBeVisible();
+  await expect(about.getByRole('img', { name: 'Monograma LCM de Lucas Casa Mausa' })).toBeVisible();
+  await expect(about.locator('img')).toHaveCount(0);
   for (const name of ['Spec antes de código', 'Medir antes de decidir', 'IA com rigor']) {
     await expect(about.getByRole('heading', { name })).toBeVisible();
   }
@@ -38,7 +39,8 @@ test('seções em inglês', async ({ page }) => {
   await expect(page.locator('#contato')).toContainText("Let's build something");
 });
 
-test('sobre mostra a foto real carregada, sem ampliar além do tamanho original', async ({ page }) => {
+// fixme: foto removida a pedido do Lucas (2026-09-24) até a troca; reative ao preencher ABOUT_PHOTO.
+test.fixme('sobre mostra a foto real carregada, sem ampliar além do tamanho original', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const img = page.locator('#sobre img');
