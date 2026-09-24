@@ -4,6 +4,7 @@ import { SkipLink } from '@/components/SkipLink';
 import { HTML_LANG, LOCALES, OG_LOCALE } from '@/i18n/locales';
 import { resolveLocale } from '@/i18n/resolve-locale';
 import { fontVariables } from '@/lib/fonts';
+import { MotionBoot } from '@/lib/motion/MotionBoot';
 import { buildAlternates } from '@/lib/metadata';
 import { PERSON, SITE_URL } from '@/lib/site';
 import '../globals.css';
@@ -43,6 +44,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="font-sans antialiased">
         <SkipLink />
         {children}
+        <MotionBoot />
       </body>
     </html>
   );
