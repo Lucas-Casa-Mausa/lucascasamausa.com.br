@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "title": "Lucas Casa Mausa — web products and AI agents",
+    "description": "Software engineer in São Paulo. I build complete web products and AI agents, backed by hands-on experience running financial systems in production."
+  },
+  "nav": {
+    "label": "Main navigation",
+    "skip": "Skip to content",
+    "menu": "Menu",
+    "work": "Work",
+    "lab": "Lab",
+    "about": "About",
+    "contact": "Contact",
+    "switchTo": "Switch language to Portuguese"
+  },
+  "hero": {
+    "location": "São Paulo, Brazil",
+    "positioning": "I build web products and AI agents, backed by hands-on experience running financial systems in production."
+  },
+  "whatIDo": {
+    "heading": "What I do",
+    "products": {
+      "title": "Products",
+      "body": "Complete websites and systems, from the database to the pixel."
+    },
+    "ai": {
+      "title": "Applied AI",
+      "body": "Agents and automations that do real work."
+    },
+    "base": {
+      "title": "Foundation",
+      "body": "Financial backend in production: money never doubles, data never leaks."
+    }
+  },
+  "work": {
+    "heading": "Work",
+    "intro": "Each project is a technical plate. Open the case to see the problem, the solution and the decisions.",
+    "plate": "Plate",
+    "viewCase": "View case",
+    "collaboration": "Collaboration",
+    "confidential": "Confidential",
+    "repo": "Code",
+    "live": "Live site",
+    "scale": "Scale",
+    "revision": "Rev."
+  },
+  "case": {
+    "problem": "Problem",
+    "solution": "Solution",
+    "decisions": "Decisions",
+    "stack": "Stack",
+    "links": "Links",
+    "back": "Back to projects",
+    "confidentialNote": "Professional project under confidentiality: only the idea is shown here, no names or numbers."
+  },
+  "lab": {
+    "heading": "Lab",
+    "intro": "Experiments and studies that haven't become products yet."
+  },
+  "about": {
+    "heading": "About",
+    "body": "I'm a software engineer in São Paulo. Day to day I work on financial systems in production, across backend, frontend, integrations and applied AI. That's where I learned that the interesting part of a system is what happens when something goes wrong. I bring that same care to the products I build for others.",
+    "howIWork": "How I work",
+    "spec": {
+      "title": "Spec before code",
+      "body": "The problem written down, alternatives compared and risks listed before the first line."
+    },
+    "measure": {
+      "title": "Measure before deciding",
+      "body": "Performance, cost and behavior checked against real data, not guesswork."
+    },
+    "ai": {
+      "title": "AI with rigor",
+      "body": "I use AI agents every day, with review, tests and ownership of every line that ships."
+    },
+    "photoAlt": "Black-and-white portrait of Lucas Casa Mausa"
+  },
+  "contact": {
+    "heading": "Let's build something",
+    "body": "Tell me what you need.",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "github": "GitHub"
+  },
+  "notFound": {
+    "title": "Route not found",
+    "body": "This page doesn't exist, or it was load-balanced somewhere else.",
+    "back": "Back to home"
+  }
+}

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      CONTENT_DENYLIST: ${{ secrets.CONTENT_DENYLIST }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # a checagem de conteúdo lê as mensagens de commit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
+      - run: npm run check:denylist
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - run: npm run lhci
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            playwright-report
+            .lighthouseci

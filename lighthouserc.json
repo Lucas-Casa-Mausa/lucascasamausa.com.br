@@ -1,0 +1,48 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "npm run start",
+      "startServerReadyPattern": "Ready",
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/en",
+        "http://localhost:3000/trabalho/creditpulse-ai"
+      ],
+      "numberOfRuns": 3
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "error",
+          {
+            "maxNumericValue": 2500,
+            "aggregationMethod": "median"
+          }
+        ],
+        "cumulative-layout-shift": [
+          "error",
+          {
+            "maxNumericValue": 0,
+            "aggregationMethod": "median"
+          }
+        ],
+        "resource-summary:script:size": [
+          "warn",
+          {
+            "maxNumericValue": 122880
+          }
+        ],
+        "categories:accessibility": [
+          "error",
+          {
+            "minScore": 0.95
+          }
+        ]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

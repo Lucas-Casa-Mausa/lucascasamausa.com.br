@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "title": "Lucas Casa Mausa — produtos web e agentes de IA",
+    "description": "Engenheiro de software em São Paulo. Construo produtos web completos e agentes de IA, com a base de quem faz sistema financeiro em produção."
+  },
+  "nav": {
+    "label": "Navegação principal",
+    "skip": "Pular para o conteúdo",
+    "menu": "Menu",
+    "work": "Trabalho",
+    "lab": "Lab",
+    "about": "Sobre",
+    "contact": "Contato",
+    "switchTo": "Mudar idioma para inglês"
+  },
+  "hero": {
+    "location": "São Paulo, Brasil",
+    "positioning": "Construo produtos web e agentes de IA, com a base de quem faz sistema financeiro em produção."
+  },
+  "whatIDo": {
+    "heading": "O que eu faço",
+    "products": {
+      "title": "Produtos",
+      "body": "Sites e sistemas completos, do banco de dados ao pixel."
+    },
+    "ai": {
+      "title": "IA aplicada",
+      "body": "Agentes e automações que fazem trabalho de verdade."
+    },
+    "base": {
+      "title": "Base",
+      "body": "Backend financeiro em produção: dinheiro não duplica, dado não vaza."
+    }
+  },
+  "work": {
+    "heading": "Trabalho",
+    "intro": "Cada projeto é uma prancha técnica. Abra o caso para ver o problema, a solução e as decisões.",
+    "plate": "Prancha",
+    "viewCase": "Ver caso",
+    "collaboration": "Colaboração",
+    "confidential": "Confidencial",
+    "repo": "Código",
+    "live": "Site no ar",
+    "scale": "Esc.",
+    "revision": "Rev."
+  },
+  "case": {
+    "problem": "Problema",
+    "solution": "Solução",
+    "decisions": "Decisões",
+    "stack": "Stack",
+    "links": "Links",
+    "back": "Voltar aos projetos",
+    "confidentialNote": "Projeto profissional sob confidencialidade: aqui aparece só a ideia, sem nomes nem números."
+  },
+  "lab": {
+    "heading": "Laboratório",
+    "intro": "Experimentos e estudos que ainda não viraram produto."
+  },
+  "about": {
+    "heading": "Sobre",
+    "body": "Sou engenheiro de software em São Paulo. No dia a dia trabalho com sistemas financeiros em produção, passando por backend, frontend, integrações e IA aplicada. Foi ali que aprendi que a parte interessante de um sistema é o que acontece quando algo dá errado. É com esse cuidado que construo produtos para outras pessoas.",
+    "howIWork": "Como eu trabalho",
+    "spec": {
+      "title": "Spec antes de código",
+      "body": "O problema escrito, as alternativas comparadas e os riscos listados antes da primeira linha."
+    },
+    "measure": {
+      "title": "Medir antes de decidir",
+      "body": "Performance, custo e comportamento conferidos com dados reais, não com palpite."
+    },
+    "ai": {
+      "title": "IA com rigor",
+      "body": "Uso agentes de IA todos os dias, com revisão, testes e responsabilidade por cada linha que vai para produção."
+    },
+    "photoAlt": "Retrato de Lucas Casa Mausa em preto e branco"
+  },
+  "contact": {
+    "heading": "Vamos construir?",
+    "body": "Me conta o que você precisa.",
+    "email": "E-mail",
+    "linkedin": "LinkedIn",
+    "github": "GitHub"
+  },
+  "notFound": {
+    "title": "Rota não encontrada",
+    "body": "Essa página não existe, ou foi balanceada para outro lugar.",
+    "back": "Voltar para o início"
+  }
+}
