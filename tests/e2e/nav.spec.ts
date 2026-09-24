@@ -17,12 +17,12 @@ test('links têm foco visível ao navegar por teclado', async ({ page }) => {
   expect(outline).not.toBe('none');
 });
 
-test('seletor de idioma leva para /en e volta', async ({ page }) => {
+test('seletor de idioma leva para /en e volta', async ({ page, baseURL }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Mudar idioma para inglês' }).click();
   await expect(page).toHaveURL(/\/en$/);
   await page.getByRole('link', { name: 'Switch language to Portuguese' }).click();
-  await expect(page).toHaveURL('http://localhost:3000/');
+  await expect(page).toHaveURL(`${baseURL}/`);
 });
 
 test('desktop mostra as seções na barra', async ({ page, isMobile }) => {

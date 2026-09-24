@@ -22,10 +22,10 @@ test('/es não é um idioma: responde 404', async ({ page }) => {
   expect(response?.status()).toBe(404);
 });
 
-test('Accept-Language em inglês não redireciona a home', async ({ browser }) => {
+test('Accept-Language em inglês não redireciona a home', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ locale: 'en-US' });
   const page = await context.newPage();
-  await page.goto('http://localhost:3000/');
+  await page.goto(`${baseURL}/`);
   expect(new URL(page.url()).pathname).toBe('/');
   await context.close();
 });

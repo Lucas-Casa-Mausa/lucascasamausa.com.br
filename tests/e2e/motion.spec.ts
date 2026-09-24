@@ -203,3 +203,16 @@ test.describe('explode', () => {
     expect(await planeTransform(page, 'threads', 2)).toBe('identity');
   });
 });
+
+test.describe('movimento reduzido de ponta a ponta', () => {
+  test.use({ reducedMotion: 'reduce' });
+  test('nada anima: sem canvas, sem Lenis, sem recorte, pranchas montadas', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(2000);
+    await expect(page.locator('html')).toHaveAttribute('data-tier', 'static');
+    await expect(page.locator('[data-hero-canvas]')).toHaveCount(0);
+    await expect(page.locator('html')).not.toHaveClass(/\blenis\b/);
+    expect(await page.locator('#trabalho').evaluate((el) => getComputedStyle(el).clipPath)).toBe('none');
+    await expect(page.locator('#sobre [data-photo-sweep]')).toHaveCSS('opacity', '0');
+  });
+});
