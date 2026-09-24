@@ -37,3 +37,14 @@ test('seções em inglês', async ({ page }) => {
   await expect(page.locator('#sobre')).toContainText('How I work');
   await expect(page.locator('#contato')).toContainText("Let's build something");
 });
+
+test('sobre mostra a foto real carregada, sem ampliar além do tamanho original', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const img = page.locator('#sobre img');
+  await expect(img).toHaveAttribute('src', /lucas\.jpg/);
+  await img.scrollIntoViewIfNeeded();
+  await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+  const box = await img.boundingBox();
+  expect(box!.width).toBeLessThanOrEqual(400);
+});

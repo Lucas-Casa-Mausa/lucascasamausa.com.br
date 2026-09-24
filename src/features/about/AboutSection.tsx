@@ -10,14 +10,14 @@ export async function AboutSection() {
   return (
     <section id="sobre" aria-labelledby="about-title" className="border-t border-line-dark px-4 py-16 md:px-8 md:py-24">
       <div className="mx-auto grid max-w-[1440px] gap-10 md:grid-cols-12">
-        <figure className="grain md:col-span-5">
+        <figure className="grain w-full max-w-[400px] self-start md:col-span-5">
           {ABOUT_PHOTO ? (
             <Image
               src={ABOUT_PHOTO.src}
               width={ABOUT_PHOTO.width}
               height={ABOUT_PHOTO.height}
               alt={t('photoAlt')}
-              sizes="(min-width: 768px) 40vw, 100vw"
+              sizes="(min-width: 768px) 400px, 100vw"
               className="h-auto w-full contrast-125 grayscale"
             />
           ) : (
