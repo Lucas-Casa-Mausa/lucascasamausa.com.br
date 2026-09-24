@@ -3,7 +3,11 @@ import type { ActiveTier } from './tier';
 /** Liga os efeitos da página atual. Cada efeito devolve sua limpeza; a ordem de limpeza é a inversa. */
 export async function startMotion(tier: ActiveTier): Promise<() => void> {
   const cleanups: (() => void)[] = [];
-  void tier;
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  if (hero) {
+    const { mountHeroPackets } = await import('@/features/hero/packets/mount');
+    cleanups.push(mountHeroPackets(hero, tier));
+  }
   return () => {
     for (const cleanup of cleanups.reverse()) cleanup();
   };

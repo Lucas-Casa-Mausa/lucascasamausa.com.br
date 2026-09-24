@@ -5,11 +5,13 @@ export async function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="grid-lines-dark flex min-h-[calc(100svh-61px)] flex-col justify-between gap-10 px-4 pt-6 pb-10 md:px-8"
+      data-hero
+      className="grid-lines-dark relative flex min-h-[calc(100svh-61px)] flex-col justify-between gap-10 px-4 pt-6 pb-10 md:px-8"
     >
       <p className="font-mono text-[11px] tracking-[0.08em] text-muted uppercase">{t('location')}</p>
       <h1
         id="hero-title"
+        data-hero-name
         className="font-display text-[clamp(4.5rem,22vw,15rem)] leading-[0.8] tracking-[-0.04em] text-bone uppercase md:text-[clamp(6rem,14vw,22rem)]"
       >
         {/* Mobile: três linhas. Desktop: "LUCAS" / "CASA MAUSA", ocupando a largura como no mockup. */}
