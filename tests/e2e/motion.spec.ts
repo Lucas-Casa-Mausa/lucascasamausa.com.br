@@ -89,3 +89,44 @@ test.describe('hero', () => {
     await expect(page.locator('[data-hero-canvas]')).toHaveCount(1);
   });
 });
+
+test.describe('scroll', () => {
+  test('full/lite liga o Lenis e o static não', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.goto('/?motion=static');
+    await page.waitForTimeout(1500);
+    await expect(page.locator('html')).not.toHaveClass(/\blenis\b/);
+  });
+
+  test('link da barra leva à seção com o Lenis ativo', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'barra de seções só no desktop');
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Contato', exact: true }).click();
+    await expect(page.locator('#contato')).toBeInViewport();
+  });
+
+  test('menu mobile leva à seção com o Lenis ativo', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'só mobile');
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.getByRole('link', { name: 'Menu', exact: true }).click();
+    await page.locator('#menu').getByRole('link', { name: 'Sobre', exact: true }).click();
+    await expect(page.locator('#sobre')).toBeInViewport();
+  });
+
+  test('abrir um caso a partir do fim da home começa no topo', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.locator('#plataforma-financeira').scrollIntoViewIfNeeded();
+    await page.getByRole('link', { name: 'Ver caso: Plataforma financeira' }).click();
+    await expect(page).toHaveURL(/plataforma-financeira$/);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+  });
+
+  test('<html> declara data-scroll-behavior para o Next 16', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-scroll-behavior', 'smooth');
+  });
+});

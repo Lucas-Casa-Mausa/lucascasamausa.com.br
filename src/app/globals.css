@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 @theme inline {
   --color-ink: #0b0b0a;
@@ -24,6 +25,10 @@
     html {
       scroll-behavior: auto;
     }
+  }
+  /* Com Lenis ativo, o scroll-behavior nativo brigaria com a interpolação dele. */
+  html.lenis {
+    scroll-behavior: auto;
   }
   body {
     background-color: var(--color-ink);

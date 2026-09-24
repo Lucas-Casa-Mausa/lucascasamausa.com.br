@@ -40,7 +40,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const locale = resolveLocale((await params).locale);
   setRequestLocale(locale);
   return (
-    <html lang={HTML_LANG[locale]} className={fontVariables}>
+    <html lang={HTML_LANG[locale]} className={fontVariables} data-scroll-behavior="smooth">
       <body className="font-sans antialiased">
         <SkipLink />
         {children}

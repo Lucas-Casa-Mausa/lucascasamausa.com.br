@@ -8,6 +8,8 @@ export async function startMotion(tier: ActiveTier): Promise<() => void> {
     const { mountHeroPackets } = await import('@/features/hero/packets/mount');
     cleanups.push(mountHeroPackets(hero, tier));
   }
+  const { initScroll } = await import('./scroll');
+  cleanups.push(await initScroll());
   return () => {
     for (const cleanup of cleanups.reverse()) cleanup();
   };
