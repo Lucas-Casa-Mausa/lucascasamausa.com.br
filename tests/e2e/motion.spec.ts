@@ -165,3 +165,41 @@ test.describe('reveal', () => {
     await expect(sweep).toHaveAttribute('data-swept', 'true', { timeout: 5000 });
   });
 });
+
+const planeTransform = (page: import('@playwright/test').Page, plate: string, plane: number) =>
+  page.locator(`#${plate} [data-plane="${plane}"]`).evaluate((el) => {
+    const t = getComputedStyle(el).transform;
+    return t === 'none' ? 'identity' : new DOMMatrix(t).isIdentity ? 'identity' : t;
+  });
+
+test.describe('explode', () => {
+  test('diagrama tem três planos e só o primeiro é a imagem acessível', async ({ page }) => {
+    await page.goto('/');
+    const stack = page.locator('#creditpulse-ai [data-explode]');
+    await expect(stack.locator('svg[data-plane]')).toHaveCount(3);
+    await expect(stack.locator('svg[role="img"]')).toHaveCount(1);
+    await expect(stack.locator('svg[data-plane="0"]')).toHaveAttribute('role', 'img');
+  });
+
+  test('prancha entrando está separada e, no centro, montada', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    const scrollPlate = (fraction: number) =>
+      page.evaluate((f) => {
+        const el = document.querySelector('#threads [data-explode]')!;
+        const r = el.getBoundingClientRect();
+        window.scrollTo(0, r.top + window.scrollY - window.innerHeight * f);
+      }, fraction);
+    await scrollPlate(0.92);
+    await expect.poll(() => planeTransform(page, 'threads', 2)).not.toBe('identity');
+    await scrollPlate(0.2);
+    await expect.poll(() => planeTransform(page, 'threads', 2)).toBe('identity');
+  });
+
+  test('static deixa tudo montado', async ({ page }) => {
+    await page.goto('/?motion=static');
+    await page.waitForTimeout(1500);
+    await page.locator('#threads').scrollIntoViewIfNeeded();
+    expect(await planeTransform(page, 'threads', 2)).toBe('identity');
+  });
+});

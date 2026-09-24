@@ -30,6 +30,17 @@
   html.lenis {
     scroll-behavior: auto;
   }
+  [data-explode-wrap] {
+    perspective: 1400px;
+  }
+  [data-explode] {
+    position: relative;
+    transform-style: preserve-3d;
+  }
+  [data-explode] > [data-plane]:not([data-plane="0"]) {
+    position: absolute;
+    inset: 0;
+  }
   body {
     background-color: var(--color-ink);
     color: var(--color-bone);

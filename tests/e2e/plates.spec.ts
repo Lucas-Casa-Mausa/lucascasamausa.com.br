@@ -34,5 +34,5 @@ test('"Ver caso" tem nome acessível único e leva à página do caso', async ({
 
 test('em inglês os rótulos do diagrama traduzem', async ({ page }) => {
   await page.goto('/en');
-  await expect(page.locator('#creditpulse-ai svg')).toContainText('Deterministic engine');
+  await expect(page.locator('#creditpulse-ai [data-explode]')).toContainText('Deterministic engine');
 });

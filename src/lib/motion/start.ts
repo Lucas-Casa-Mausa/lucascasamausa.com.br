@@ -12,6 +12,10 @@ export async function startMotion(tier: ActiveTier): Promise<() => void> {
   cleanups.push(await initScroll());
   const { initReveal } = await import('@/features/plates/reveal');
   cleanups.push(initReveal(tier));
+  const { initExplode } = await import('@/features/plates/explode');
+  cleanups.push(initExplode(tier));
+  const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+  ScrollTrigger.refresh();
   return () => {
     for (const cleanup of cleanups.reverse()) cleanup();
   };
