@@ -10,6 +10,8 @@ export async function startMotion(tier: ActiveTier): Promise<() => void> {
   }
   const { initScroll } = await import('./scroll');
   cleanups.push(await initScroll());
+  const { initReveal } = await import('@/features/plates/reveal');
+  cleanups.push(initReveal(tier));
   return () => {
     for (const cleanup of cleanups.reverse()) cleanup();
   };

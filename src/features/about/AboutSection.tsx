@@ -10,7 +10,7 @@ export async function AboutSection() {
   return (
     <section id="sobre" aria-labelledby="about-title" className="border-t border-line-dark px-4 py-16 md:px-8 md:py-24">
       <div className="mx-auto grid max-w-[1440px] gap-10 md:grid-cols-12">
-        <figure className="grain w-full max-w-[400px] self-start md:col-span-5">
+        <figure className="grain w-full max-w-[400px] self-start overflow-hidden md:col-span-5">
           {ABOUT_PHOTO ? (
             <Image
               src={ABOUT_PHOTO.src}
@@ -23,6 +23,15 @@ export async function AboutSection() {
           ) : (
             <Monogram label={t('monogramAlt')} />
           )}
+          <span
+            data-photo-sweep
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/3 opacity-0"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent, rgba(255,176,0,0.18) 45%, rgba(255,176,0,0.9) 50%, rgba(255,176,0,0.18) 55%, transparent)',
+            }}
+          />
         </figure>
         <div className="md:col-span-7">
           <h2 id="about-title" className="font-display text-[clamp(3rem,12vw,8rem)] leading-[0.85] tracking-[-0.03em] uppercase">

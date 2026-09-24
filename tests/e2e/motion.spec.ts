@@ -130,3 +130,38 @@ test.describe('scroll', () => {
     await expect(page.locator('html')).toHaveAttribute('data-scroll-behavior', 'smooth');
   });
 });
+
+const clipOf = (page: import('@playwright/test').Page) =>
+  page.locator('#trabalho').evaluate((el) => getComputedStyle(el).clipPath);
+
+test.describe('reveal', () => {
+  test('a prancheta entra recortada e termina inteira', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.evaluate(() => {
+      const top = document.querySelector('#trabalho')!.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, top - window.innerHeight * 0.85);
+    });
+    await expect.poll(() => clipOf(page)).toMatch(/inset\((?!0%\)|0% 0% 0% 0%\))/);
+    await page.evaluate(() => {
+      const top = document.querySelector('#trabalho')!.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, top);
+    });
+    await expect.poll(() => clipOf(page)).toMatch(/^(none|inset\(0%( 0%){0,3}\)|inset\(0px( 0px){0,3}\))$/);
+  });
+
+  test('static não recorta', async ({ page }) => {
+    await page.goto('/?motion=static');
+    await page.waitForTimeout(1500);
+    expect(await clipOf(page)).toBe('none');
+  });
+
+  test('a foto recebe a varredura âmbar ao entrar', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    const sweep = page.locator('#sobre [data-photo-sweep]');
+    await expect(sweep).toHaveAttribute('aria-hidden', 'true');
+    await page.locator('#sobre figure').scrollIntoViewIfNeeded();
+    await expect(sweep).toHaveAttribute('data-swept', 'true', { timeout: 5000 });
+  });
+});

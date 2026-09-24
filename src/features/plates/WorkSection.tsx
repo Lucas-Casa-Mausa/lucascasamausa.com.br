@@ -6,7 +6,7 @@ import { Plate } from './Plate';
 export async function WorkSection({ locale }: { locale: Locale }) {
   const t = await getTranslations('work');
   return (
-    <section id="trabalho" aria-labelledby="work-title" className="paper-grid bg-paper px-4 py-16 text-ink md:px-8 md:py-24">
+    <section id="trabalho" data-reveal aria-labelledby="work-title" className="paper-grid bg-paper px-4 py-16 text-ink md:px-8 md:py-24">
       <header className="mx-auto mb-12 max-w-[1440px]">
         <h2
           id="work-title"
