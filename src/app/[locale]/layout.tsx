@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { SkipLink } from '@/components/SkipLink';
+import { AgentLauncher } from '@/features/agent/AgentLauncher';
+import { getAgentLabels } from '@/features/agent/labels';
 import { HTML_LANG, LOCALES, OG_LOCALE } from '@/i18n/locales';
 import { resolveLocale } from '@/i18n/resolve-locale';
 import { fontVariables } from '@/lib/fonts';
@@ -41,10 +43,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   return (
     <html lang={HTML_LANG[locale]} className={fontVariables} data-scroll-behavior="smooth">
-      <body className="font-sans antialiased">
+      <body className="pb-20 font-sans antialiased md:pb-0">
         <SkipLink />
         {children}
         <MotionBoot />
+        <AgentLauncher locale={locale} labels={await getAgentLabels(locale)} />
       </body>
     </html>
   );

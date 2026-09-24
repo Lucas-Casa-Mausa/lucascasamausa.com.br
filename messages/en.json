@@ -87,5 +87,33 @@
     "title": "Route not found",
     "body": "This page doesn't exist, or it was load-balanced somewhere else.",
     "back": "Back to home"
+  },
+  "agent": {
+    "nav": "Agent",
+    "placeholder": "Describe your project or ask about me",
+    "send": "Send",
+    "chips": {
+      "project": "I have a project",
+      "ai": "AI automation",
+      "recruiter": "I'm a recruiter"
+    },
+    "title": "Conversation with the agent",
+    "close": "Close",
+    "privacy": "The conversation isn't stored. Only what you send in the form reaches Lucas.",
+    "scopeTitle": "Initial scope",
+    "scopeWeeks": "{min}–{max} weeks",
+    "scopeNote": "Initial estimate, to be confirmed with Lucas. Pricing only with him.",
+    "scopeOut": "Native mobile apps are outside the usual scope: talk to Lucas directly.",
+    "viewProject": "View project",
+    "contactTitle": "Talk to Lucas",
+    "name": "Name",
+    "email": "Email",
+    "company": "Company (optional)",
+    "consent": "I agree to send this data and the conversation summary so Lucas can get in touch.",
+    "contactSend": "Send",
+    "contactOk": "Received! Lucas will reply by email.",
+    "contactError": "Couldn't send right now. Write to",
+    "unavailable": "The agent is unavailable right now. Leave your contact:",
+    "thinking": "Thinking…"
   }
 }

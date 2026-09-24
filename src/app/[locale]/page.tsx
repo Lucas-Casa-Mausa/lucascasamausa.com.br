@@ -16,7 +16,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <Nav locale={locale} path="/" />
       <main id="conteudo">
-        <Hero />
+        <Hero locale={locale} />
         <WhatIDo />
         <WorkSection locale={locale} />
         <LabSection locale={locale} />

@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
+import type { Locale } from '@/i18n/locales';
+import { HeroPrompt } from './HeroPrompt';
 
-export async function Hero() {
+export async function Hero({ locale }: { locale: Locale }) {
   const t = await getTranslations('hero');
   return (
     <section
@@ -19,7 +21,10 @@ export async function Hero() {
         <span className="text-outline block md:inline">Casa</span>{' '}
         <span className="block md:inline">Mausa</span>
       </h1>
-      <p className="max-w-[34ch] text-lg text-bone md:text-2xl">{t('positioning')}</p>
+      <div className="flex flex-col gap-6">
+        <p className="max-w-[34ch] text-lg text-bone md:text-2xl">{t('positioning')}</p>
+        <HeroPrompt locale={locale} />
+      </div>
     </section>
   );
 }

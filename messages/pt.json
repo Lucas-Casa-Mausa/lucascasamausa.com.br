@@ -87,5 +87,33 @@
     "title": "Rota não encontrada",
     "body": "Essa página não existe, ou foi balanceada para outro lugar.",
     "back": "Voltar para o início"
+  },
+  "agent": {
+    "nav": "Agente",
+    "placeholder": "Descreva seu projeto ou pergunte sobre mim",
+    "send": "Enviar",
+    "chips": {
+      "project": "Tenho um projeto",
+      "ai": "Automação com IA",
+      "recruiter": "Sou recrutador"
+    },
+    "title": "Conversa com o agente",
+    "close": "Fechar",
+    "privacy": "A conversa não é armazenada. Só o que você enviar no formulário chega ao Lucas.",
+    "scopeTitle": "Escopo inicial",
+    "scopeWeeks": "{min}–{max} semanas",
+    "scopeNote": "Estimativa inicial, a confirmar com o Lucas. Orçamento só com ele.",
+    "scopeOut": "App mobile nativo foge do escopo típico: fale direto com o Lucas.",
+    "viewProject": "Ver projeto",
+    "contactTitle": "Falar com o Lucas",
+    "name": "Nome",
+    "email": "E-mail",
+    "company": "Empresa (opcional)",
+    "consent": "Concordo em enviar esses dados e o resumo da conversa para o Lucas entrar em contato.",
+    "contactSend": "Enviar",
+    "contactOk": "Recebido! O Lucas vai responder por e-mail.",
+    "contactError": "Não foi possível enviar agora. Escreva para",
+    "unavailable": "O agente está indisponível agora. Deixe seu contato:",
+    "thinking": "Pensando…"
   }
 }

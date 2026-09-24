@@ -11,6 +11,7 @@ const SECTIONS = [
 
 export async function Nav({ locale, path }: { locale: Locale; path: string }) {
   const t = await getTranslations('nav');
+  const ta = await getTranslations('agent');
   const other: Locale = locale === 'pt' ? 'en' : 'pt';
   const home = localePath(locale, '/');
 
@@ -32,6 +33,11 @@ export async function Nav({ locale, path }: { locale: Locale; path: string }) {
               </Link>
             </li>
           ))}
+          <li>
+            <a href="#agente" data-agent-open className="inline-flex min-h-11 items-center text-amber hover:text-bone">
+              {ta('nav')}
+            </a>
+          </li>
         </ul>
 
         <div className="flex items-center gap-4">
@@ -60,6 +66,11 @@ export async function Nav({ locale, path }: { locale: Locale; path: string }) {
               </a>
             </li>
           ))}
+          <li>
+            <a href="#agente" data-agent-open className="flex min-h-11 items-center text-amber">
+              {ta('nav')}
+            </a>
+          </li>
         </ul>
       </div>
     </header>

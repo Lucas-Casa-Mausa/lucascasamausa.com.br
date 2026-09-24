@@ -26,7 +26,13 @@ jobs:
       - run: npm run check:denylist
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
+        env:
+          AGENT_ALLOW_MOCK: '1'
+          AGENT_MODEL: mock:scripted
       - run: npm run lhci
+        env:
+          AGENT_ALLOW_MOCK: '1'
+          AGENT_MODEL: mock:scripted
       - if: failure()
         uses: actions/upload-artifact@v4
         with:

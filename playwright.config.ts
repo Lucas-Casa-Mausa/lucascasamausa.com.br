@@ -17,6 +17,8 @@ export default defineConfig({
     command: `npx next start -p ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
+    // Agente com modelo simulado (roteiro fixo): sem chave, sem custo, determinístico.
+    env: { AGENT_ALLOW_MOCK: '1', AGENT_MODEL: 'mock:scripted' },
     timeout: 120_000,
   },
 });
