@@ -42,7 +42,8 @@
     "repo": "Código",
     "live": "Site no ar",
     "scale": "Esc.",
-    "revision": "Rev."
+    "revision": "Rev.",
+    "tryAgent": "Testar"
   },
   "case": {
     "problem": "Problema",

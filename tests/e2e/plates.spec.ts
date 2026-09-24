@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
 
-test('cinco pranchas na ordem certa', async ({ page }) => {
+test('seis pranchas na ordem certa (00 por último)', async ({ page }) => {
   await page.goto('/');
   const plates = page.locator('#trabalho article');
-  await expect(plates).toHaveCount(5);
+  await expect(plates).toHaveCount(6);
   const ids = await plates.evaluateAll((els) => els.map((e) => e.id));
-  expect(ids).toEqual(['creditpulse-ai', 'fast-semantic-cache', 'threads', 'kiwibit', 'plataforma-financeira']);
+  expect(ids).toEqual(['creditpulse-ai', 'fast-semantic-cache', 'threads', 'kiwibit', 'plataforma-financeira', 'agente']);
 });
 
 test('selos de colaboração e confidencial', async ({ page }) => {

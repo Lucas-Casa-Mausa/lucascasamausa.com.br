@@ -31,6 +31,8 @@ export type Project = {
   stack: string[];
   links: ProjectLink[];
   badge?: 'collaboration' | 'confidential';
+  /** Ação extra na prancha/caso (ex.: abrir o agente do próprio portfolio). */
+  action?: 'try-agent';
   diagram: Diagram;
 };
 

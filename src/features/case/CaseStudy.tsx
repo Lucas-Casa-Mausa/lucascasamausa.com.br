@@ -32,6 +32,12 @@ export async function CaseStudy({ project, locale }: { project: Project; locale:
         <PlateDiagram diagram={project.diagram} locale={locale} />
       </div>
 
+      {project.action === 'try-agent' && (
+        <button type="button" data-agent-open className="mb-10 inline-flex min-h-11 items-center gap-2 self-start border-b-[1.5px] border-vermilion font-mono text-sm tracking-[0.06em] text-vermilion uppercase">
+          {tw('tryAgent')} ›
+        </button>
+      )}
+
       {project.badge === 'confidential' && (
         <p className="mb-10 border-l-2 border-vermilion pl-3 font-mono text-sm">{t('confidentialNote')}</p>
       )}

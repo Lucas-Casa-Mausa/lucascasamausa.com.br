@@ -113,3 +113,9 @@ test('o agente não entra no JS inicial', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   expect(scripts.some((s) => s.includes('data-scope-card'))).toBe(false);
 });
+
+test('botão Testar da prancha 00 abre o agente', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#agente').getByRole('button', { name: /testar/i }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+});

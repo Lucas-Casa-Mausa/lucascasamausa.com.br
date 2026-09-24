@@ -240,6 +240,53 @@ export const projects: Project[] = [
       ],
     },
   },
+  {
+    slug: 'agente',
+    plate: '00',
+    title: 'Este agente',
+    tagline: {
+      pt: 'O agente deste portfolio: entende o seu projeto e devolve um escopo inicial com prazo.',
+      en: "This portfolio's agent: it understands your project and returns an initial scope with a timeline.",
+    },
+    problem: {
+      pt: 'Quem chega com uma ideia de projeto quer saber rápido se faz sentido e quanto tempo leva, antes de marcar uma conversa.',
+      en: 'People who arrive with a project idea want to know quickly whether it makes sense and how long it takes, before booking a call.',
+    },
+    solution: {
+      pt: 'Um agente conversacional faz poucas perguntas, monta o escopo estruturado e mostra uma faixa de prazo calculada por uma tabela determinística. Se fizer sentido, o contato chega ao Lucas por e-mail, com o resumo pronto.',
+      en: 'A conversational agent asks a few questions, builds a structured scope and shows a timeline range computed by a deterministic table. If it makes sense, the contact reaches Lucas by email with the summary ready.',
+    },
+    decisions: {
+      pt: [
+        'Agnóstico de provedor: o modelo é uma variável de ambiente; trocar de LLM não mexe no resto.',
+        'O LLM não calcula prazo nem dá preço: o prazo vem de uma tabela, e um filtro remove qualquer valor em dinheiro do stream.',
+        'Nenhuma ferramenta tem efeito colateral: o lead só é enviado quando a pessoa preenche e consente.',
+      ],
+      en: [
+        'Provider-agnostic: the model is an environment variable; switching LLMs touches nothing else.',
+        'The LLM neither computes timelines nor quotes prices: the timeline comes from a table, and a filter strips any money value from the stream.',
+        'No tool has side effects: the lead is only sent when the person fills in the form and consents.',
+      ],
+    },
+    stack: ['Next.js', 'Vercel AI SDK', 'TypeScript', 'Zod', 'Upstash Redis', 'Resend'],
+    links: [],
+    action: 'try-agent',
+    diagram: {
+      nodes: [
+        { id: 'visitor', label: { pt: 'Visitante', en: 'Visitor' }, x: 8, y: 102, ...N, layer: 0 },
+        { id: 'api', label: { pt: 'API do agente', en: 'Agent API' }, x: 140, y: 102, ...N, layer: 1 },
+        { id: 'llm', label: { pt: 'LLM (qualquer)', en: 'LLM (any)' }, x: 272, y: 30, ...N, layer: 2 },
+        { id: 'estimator', label: { pt: 'Estimador', en: 'Estimator' }, x: 272, y: 102, ...N, layer: 2 },
+        { id: 'lead', label: { pt: 'Lead por e-mail', en: 'Lead by email' }, x: 272, y: 174, ...N, layer: 1 },
+      ],
+      edges: [
+        { from: 'visitor', to: 'api' },
+        { from: 'api', to: 'llm' },
+        { from: 'api', to: 'estimator' },
+        { from: 'api', to: 'lead' },
+      ],
+    },
+  },
 ];
 
 export function getProject(slug: string): Project | undefined {

@@ -48,6 +48,11 @@ export async function Plate({ project, locale }: { project: Project; locale: Loc
           >
             {t('viewCase')} →
           </Link>
+          {project.action === 'try-agent' && (
+            <button type="button" data-agent-open className="inline-flex min-h-11 items-center gap-2 self-start border-b-[1.5px] border-vermilion font-mono text-sm tracking-[0.06em] text-vermilion uppercase">
+              {t('tryAgent')} ›
+            </button>
+          )}
         </div>
       </div>
 

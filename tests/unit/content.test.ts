@@ -7,15 +7,21 @@ import { LOCALES } from '@/i18n/locales';
 const labelWidth = (label: string) => label.length * 9 * 0.6;
 
 describe('projetos', () => {
-  it('estão na ordem das pranchas 01..05', () => {
-    expect(projects.map((p) => p.plate)).toEqual(['01', '02', '03', '04', '05']);
+  it('estão na ordem das pranchas 01..05 e 00 (o agente) por último', () => {
+    expect(projects.map((p) => p.plate)).toEqual(['01', '02', '03', '04', '05', '00']);
     expect(projects.map((p) => p.slug)).toEqual([
       'creditpulse-ai',
       'fast-semantic-cache',
       'threads',
       'kiwibit',
       'plataforma-financeira',
+      'agente',
     ]);
+  });
+
+  it('a prancha 00 abre o agente', () => {
+    expect(getProject('agente')?.action).toBe('try-agent');
+    expect(getProject('agente')?.links).toEqual([]);
   });
 
   it('slugs são únicos e em kebab-case minúsculo', () => {

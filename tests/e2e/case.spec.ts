@@ -6,6 +6,7 @@ const cases = [
   ['threads', 'THREADS'],
   ['kiwibit', 'Kiwibit'],
   ['plataforma-financeira', 'Plataforma financeira'],
+  ['agente', 'Este agente'],
 ] as const;
 
 for (const [slug, title] of cases) {
