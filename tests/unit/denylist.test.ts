@@ -27,4 +27,15 @@ describe('denylist', () => {
   it('não acusa texto limpo', () => {
     expect(findHits('Plataforma financeira multi-organização', parseDenylist('acme,acaizeiro'))).toEqual([]);
   });
+
+  it('não acusa o termo colado dentro de outra palavra (ex.: identificador de biblioteca)', () => {
+    const terms = parseDenylist('acai,acme');
+    expect(findHits('commitAcaiRecords() e placmee', terms)).toEqual([]);
+    expect(findHits('o Açaí chegou; ACME!', terms)).toEqual(['acai', 'acme']);
+  });
+
+  it('termo que termina em hífen continua pegando identificadores (ex.: prefixo de issue)', () => {
+    expect(findHits('ver ACME-1181 no board', parseDenylist('acme-'))).toEqual(['acme-']);
+    expect(findHits('placme-9', parseDenylist('acme-'))).toEqual([]);
+  });
 });
