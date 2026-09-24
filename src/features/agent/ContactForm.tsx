@@ -34,6 +34,12 @@ export function ContactForm({ locale, labels, summary }: { locale: Locale; label
       <label className="flex flex-col gap-1">{labels.name}<input name="name" required minLength={2} maxLength={120} className="min-h-11 border-b border-line-dark bg-transparent" /></label>
       <label className="flex flex-col gap-1">{labels.email}<input name="email" type="email" required maxLength={200} className="min-h-11 border-b border-line-dark bg-transparent" /></label>
       <label className="flex flex-col gap-1">{labels.company}<input name="company" maxLength={160} className="min-h-11 border-b border-line-dark bg-transparent" /></label>
+      {summary && (
+        <details open className="text-[12px] text-muted">
+          <summary className="cursor-pointer">{labels.summaryLabel}</summary>
+          <p className="mt-2 whitespace-pre-line [overflow-wrap:anywhere]">{summary}</p>
+        </details>
+      )}
       <label className="flex items-start gap-2 text-[12px] text-muted"><input name="consent" type="checkbox" required className="mt-1" />{labels.consent}</label>
       <button type="submit" disabled={state === 'sending'} className="min-h-11 self-start text-amber uppercase">{labels.contactSend}</button>
       {state === 'error' && (

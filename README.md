@@ -19,7 +19,10 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · next-intl
 | `ANTHROPIC_API_KEY` | chave do provedor padrão (cada provedor lê a sua). |
 | `AGENT_DAILY_TOKEN_CAP` | teto global de tokens/dia (padrão 1500000). |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | limites e teto compartilhados. Sem eles, o agente responde 503 e a UI mostra o formulário. |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | anti-bot invisível na primeira mensagem. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | anti-bot invisível; depois do 1º token o servidor emite um cookie de sessão assinado (2 h). |
+| `AGENT_SESSION_SECRET` | segredo do cookie de sessão (padrão: o próprio `TURNSTILE_SECRET_KEY`). |
+| `CLIENT_IP_HEADER` | cabeçalho de IP confiável do host (ex.: `cf-connecting-ip` na Cloudflare, `x-real-ip` na Vercel). Padrão `x-forwarded-for`, forjável se o host não o sobrescrever. |
+| `LEAD_DAILY_CAP` | teto global de leads por dia (padrão 30). |
 | `RESEND_API_KEY`, `LEAD_TO_EMAIL`, `LEAD_FROM_EMAIL` | envio do lead (sem domínio verificado, use o remetente de teste do Resend). |
 | `CONTENT_DENYLIST` | termos proibidos: checagem de CI **e** filtro de saída do agente. |
 | `AGENT_ALLOW_MOCK` | só testes: habilita `AGENT_MODEL=mock:scripted`, store em memória e dispensa o Turnstile. Nunca em produção. |

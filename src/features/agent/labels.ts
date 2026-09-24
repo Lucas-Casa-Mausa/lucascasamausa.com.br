@@ -8,7 +8,7 @@ export async function getAgentLabels(locale: Locale) {
     scopeTitle: t('scopeTitle'), scopeWeeks: t.raw('scopeWeeks') as string, scopeNote: t('scopeNote'),
     scopeOut: t('scopeOut'), viewProject: t('viewProject'), contactTitle: t('contactTitle'), name: t('name'),
     email: t('email'), company: t('company'), consent: t('consent'), contactSend: t('contactSend'),
-    contactOk: t('contactOk'), contactError: t('contactError'), unavailable: t('unavailable'), thinking: t('thinking'),
+    contactOk: t('contactOk'), contactError: t('contactError'), unavailable: t('unavailable'), thinking: t('thinking'), summaryLabel: t('summaryLabel'),
   };
 }
 export type AgentLabels = Awaited<ReturnType<typeof getAgentLabels>>;

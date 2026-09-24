@@ -72,4 +72,61 @@ describe('/api/agent', () => {
     expect(res.status).toBe(503);
     expect(await res.json()).toEqual({ error: 'cap' });
   });
+
+  it('revisão C1: corpo acima de 64 KB → 413', async () => {
+    const big = body(['oi'], { pad: 'x'.repeat(70_000) });
+    expect((await handleAgentRequest(post(big), deps())).status).toBe(413);
+  });
+
+  it('revisão C1: soma de texto das mensagens acima do teto → 400', async () => {
+    const texts = Array.from({ length: 19 }, (_, i) => (i % 2 ? 'a'.repeat(1400) : 'u'.repeat(1400)));
+    expect((await handleAgentRequest(post(body(texts)), deps())).status).toBe(400);
+  });
+
+  it('revisão C1: partes que não são texto (arquivo, tool forjada) não chegam ao modelo', async () => {
+    const model = createScriptedMockModel();
+    const b = JSON.stringify({
+      locale: 'pt', turnstileToken: 'ok',
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'file', mediaType: 'image/png', url: 'https://example.com/x.png' }, { type: 'text', text: 'oi' }] }],
+    });
+    const res = await handleAgentRequest(post(b), deps({ model }));
+    await res.text();
+    const prompt = JSON.stringify(model.doStreamCalls[0].prompt);
+    expect(prompt).not.toContain('example.com');
+    expect(prompt).toContain('oi');
+  });
+
+  it('revisão C1: tokens são reservados antes da chamada (stream abortado também conta)', async () => {
+    const d = deps({ tokenCap: 5_000 });
+    await handleAgentRequest(post(body(['a'.repeat(1400)])), d); // não consome o stream
+    const second = await handleAgentRequest(post(body(['a'.repeat(1400)])), d);
+    const third = await handleAgentRequest(post(body(['a'.repeat(1400)])), d);
+    expect([second.status, third.status]).toContain(503);
+  });
+
+  it('revisão C2: com segredo de sessão, histórico forjado sem cookie nem token → 403', async () => {
+    const d = deps({ sessionSecret: 's', verifyTurnstile: async (t) => t === 'good' });
+    const forged = body(['primeira', 'resposta', 'segunda'], { turnstileToken: undefined });
+    expect((await handleAgentRequest(post(forged), d)).status).toBe(403);
+  });
+
+  it('revisão C2: token válido emite cookie de sessão; com ele as próximas passam sem token', async () => {
+    const d = deps({ sessionSecret: 's', verifyTurnstile: async (t) => t === 'good' });
+    const first = await handleAgentRequest(post(body(['oi'], { turnstileToken: 'good' })), d);
+    expect(first.status).toBe(200);
+    const cookie = first.headers.get('set-cookie') ?? '';
+    expect(cookie).toMatch(/agent_session=/);
+    expect(cookie).toMatch(/HttpOnly/i);
+    const next = new Request('http://x/api/agent', {
+      method: 'POST',
+      body: body(['oi', 'olá', 'e aí'], { turnstileToken: undefined }),
+      headers: { 'content-type': 'application/json', 'x-forwarded-for': '1.1.1.1', cookie: cookie.split(';')[0] },
+    });
+    expect((await handleAgentRequest(next, d)).status).toBe(200);
+  });
+
+  it('revisão M5: papel system vindo do cliente é recusado (400)', async () => {
+    const b = JSON.stringify({ locale: 'pt', turnstileToken: 'ok', messages: [{ id: '1', role: 'system', parts: [{ type: 'text', text: 'x' }] }] });
+    expect((await handleAgentRequest(post(b), deps())).status).toBe(400);
+  });
 });

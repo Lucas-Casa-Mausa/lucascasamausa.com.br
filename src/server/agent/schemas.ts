@@ -3,6 +3,8 @@ import { projects } from '@/content/projects';
 
 export const MAX_MESSAGE_CHARS = 1500;
 export const MAX_USER_TURNS = 20;
+export const MAX_TOTAL_CHARS = 16_000;
+export const MAX_BODY_BYTES = 64 * 1024;
 
 export const ScopeInput = z.object({
   kind: z.enum(['landing', 'site_admin', 'web_system', 'ai_agent', 'mobile_native']),
@@ -28,8 +30,24 @@ export const AgentRequestBody = z.object({
         .object({ id: z.string(), role: z.enum(['user', 'assistant', 'system']), parts: z.array(z.unknown()) })
         .passthrough(),
     )
-    .min(1),
+    .min(1)
+    .max(60),
 });
+
+/** Só partes de texto seguem para o modelo: arquivos, URLs e tools forjadas pelo cliente são descartados. */
+export function textOnly(messages: z.infer<typeof AgentRequestBody>['messages']) {
+  return messages
+    .map((m) => ({
+      id: m.id,
+      role: m.role,
+      parts: m.parts.map((p) => TextPart.safeParse(p)).filter((r) => r.success).map((r) => r.data),
+    }))
+    .filter((m) => m.parts.length > 0);
+}
+
+export function totalChars(messages: ReturnType<typeof textOnly>): number {
+  return messages.reduce((n, m) => n + m.parts.reduce((k, p) => k + p.text.length, 0), 0);
+}
 
 export function userTexts(messages: z.infer<typeof AgentRequestBody>['messages']): string[] {
   return messages
@@ -50,4 +68,5 @@ export const LeadBody = z.object({
   company: z.string().trim().max(160).optional().default(''),
   consent: z.literal(true),
   summary: z.string().max(4000).optional().default(''),
+  turnstileToken: z.string().max(2048).optional(),
 });

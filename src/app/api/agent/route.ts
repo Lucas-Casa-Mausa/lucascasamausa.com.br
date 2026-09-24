@@ -18,6 +18,8 @@ export async function POST(req: Request) {
       tokenCap: Number(process.env.AGENT_DAILY_TOKEN_CAP ?? 1_500_000),
       denylist: (process.env.CONTENT_DENYLIST ?? '').split(/[,\r\n]/).map((t) => t.trim()).filter(Boolean),
       verifyTurnstile,
+      sessionSecret: process.env.AGENT_SESSION_SECRET ?? process.env.TURNSTILE_SECRET_KEY,
+      ipHeader: process.env.CLIENT_IP_HEADER ?? 'x-forwarded-for',
     });
   } catch {
     return Response.json({ error: 'unavailable' }, { status: 503 });

@@ -68,9 +68,38 @@ export async function checkTokenCap(store: LimitStore, now: Date, cap: number): 
 }
 
 export async function addTokens(store: LimitStore, now: Date, n: number): Promise<void> {
-  if (n > 0) await store.incrBy(`agent:tokens:${dayKey(now)}`, n, 60 * 60 * 26);
+  if (n !== 0) await store.incrBy(`agent:tokens:${dayKey(now)}`, n, 60 * 60 * 26);
+}
+
+/**
+ * Reserva `estimate` tokens antes da chamada (atômico via incrBy). Se passar do teto, devolve a reserva e recusa.
+ * A reserva fica valendo mesmo se o stream for abortado; no fim, ajuste com addTokens(real - estimate).
+ */
+export async function reserveTokens(store: LimitStore, now: Date, estimate: number, cap: number): Promise<boolean> {
+  const total = await store.incrBy(`agent:tokens:${dayKey(now)}`, estimate, 60 * 60 * 26);
+  if (total > cap) {
+    await store.incrBy(`agent:tokens:${dayKey(now)}`, -estimate, 60 * 60 * 26);
+    return false;
+  }
+  return true;
 }
 
 export async function checkLeadRate(store: LimitStore, ip: string, now: Date): Promise<boolean> {
   return (await store.incr(`lead:ip:${ip}:d:${dayKey(now)}`, 60 * 60 * 26)) <= RATE.leadsPerDay;
+}
+
+/** Só lê (não consome): o consumo acontece em recordLead, depois de um envio bem-sucedido. */
+export async function leadAllowed(store: LimitStore, ip: string, now: Date, globalCap: number): Promise<boolean> {
+  const [perIp, global] = await Promise.all([
+    store.get(`lead:ip:${ip}:d:${dayKey(now)}`),
+    store.get(`lead:global:d:${dayKey(now)}`),
+  ]);
+  return perIp < RATE.leadsPerDay && global < globalCap;
+}
+
+export async function recordLead(store: LimitStore, ip: string, now: Date): Promise<void> {
+  await Promise.all([
+    store.incr(`lead:ip:${ip}:d:${dayKey(now)}`, 60 * 60 * 26),
+    store.incr(`lead:global:d:${dayKey(now)}`, 60 * 60 * 26),
+  ]);
 }

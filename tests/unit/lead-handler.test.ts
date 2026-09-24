@@ -42,4 +42,29 @@ describe('/api/lead', () => {
     const res = await handleLeadRequest(post(valid), deps({ send: async () => { throw new Error('down'); } }));
     expect(res.status).toBe(502);
   });
+
+  it('revisão I5: CR/LF no nome não vira quebra no assunto', async () => {
+    const d = deps();
+    await handleLeadRequest(post({ ...valid, name: 'Ana\r\nBcc: x@evil.com' }), d);
+    const mail = (d.send as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(mail.subject).not.toMatch(/[\r\n]/);
+  });
+
+  it('revisão I5: teto global diário de leads', async () => {
+    const d = deps({ globalDailyCap: 2 });
+    const ip = (n: number) => new Request('http://x/api/lead', { method: 'POST', body: JSON.stringify(valid), headers: { 'x-forwarded-for': `9.9.9.${n}` } });
+    expect((await handleLeadRequest(ip(1), d)).status).toBe(200);
+    expect((await handleLeadRequest(ip(2), d)).status).toBe(200);
+    expect((await handleLeadRequest(ip(3), d)).status).toBe(429);
+  });
+
+  it('revisão I5: com segredo de sessão, lead sem cookie nem token → 403', async () => {
+    const d = deps({ sessionSecret: 's', verifyTurnstile: async () => false });
+    expect((await handleLeadRequest(post(valid), d)).status).toBe(403);
+  });
+
+  it('revisão I5: falha no envio não consome o limite do IP', async () => {
+    const failing = deps({ send: async () => { throw new Error('down'); } });
+    for (let i = 0; i < 6; i++) expect((await handleLeadRequest(post(valid), failing)).status).toBe(502);
+  });
 });

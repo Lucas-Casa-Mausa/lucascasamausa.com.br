@@ -115,6 +115,7 @@
     "contactOk": "Received! Lucas will reply by email.",
     "contactError": "Couldn't send right now. Write to",
     "unavailable": "The agent is unavailable right now. Leave your contact:",
-    "thinking": "Thinking…"
+    "thinking": "Thinking…",
+    "summaryLabel": "Summary to be sent"
   }
 }

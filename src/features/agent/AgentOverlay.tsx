@@ -3,11 +3,12 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import Link from 'next/link';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { Locale } from '@/i18n/locales';
 import { ContactForm } from './ContactForm';
 import type { AgentLabels } from './labels';
 import { ScopeCard } from './ScopeCard';
+import { buildSummary } from './summary';
 import { disposeTurnstile, getTurnstileToken, TURNSTILE_CONTAINER_ID } from './turnstile-client';
 
 const STORAGE_KEY = 'agent-history';
@@ -26,6 +27,8 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
   locale: Locale; labels: AgentLabels; initialText: string | null; onClose: () => void;
 }) {
   const titleId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const sentInitial = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const opener = useRef<Element | null>(typeof document !== 'undefined' ? document.activeElement : null);
   const [draft, setDraft] = useState('');
@@ -51,7 +54,10 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
   useEffect(() => {
     const saved = load();
     if (saved.length) setMessages(saved);
-    if (initialText) void sendMessage({ text: initialText });
+    if (initialText && !sentInitial.current) {
+      sentInitial.current = true; // StrictMode monta efeitos duas vezes em dev
+      void sendMessage({ text: initialText });
+    }
     inputRef.current?.focus();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- só na montagem
   }, []);
@@ -63,25 +69,52 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
     }
   }, [messages]);
 
+  const close = useCallback(() => {
+    if (busy) void stop();
+    onClose();
+  }, [busy, stop, onClose]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (busy) void stop();
-      onClose();
-      (opener.current as HTMLElement | null)?.focus?.();
+      if (e.key === 'Escape') return close();
+      if (e.key !== 'Tab' || !rootRef.current) return;
+      // Foco dá a volta dentro do diálogo (padrão WAI-ARIA de modal).
+      const focusables = Array.from(
+        rootRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])'),
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const inside = rootRef.current.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [busy, stop, onClose]);
+  }, [close]);
 
-  const lastScopeSummary = useMemo(() => {
-    for (const m of [...messages].reverse()) {
-      for (const p of m.parts as ToolPart[]) {
-        if (p.type === 'tool-update_scope' && p.state === 'output-available') return JSON.stringify(p.output);
-      }
-    }
-    return '';
-  }, [messages]);
+  // Modal de verdade: o resto da página fica inerte (fora do Tab e do leitor de tela) e não rola por trás.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const siblings = Array.from(document.body.children).filter((el) => !el.contains(root)) as HTMLElement[];
+    for (const el of siblings) el.inert = true;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const openerEl = opener.current as HTMLElement | null;
+    return () => {
+      for (const el of siblings) el.inert = false;
+      document.body.style.overflow = overflow;
+      openerEl?.focus?.(); // só depois de tirar o inert: elemento inerte não recebe foco
+    };
+  }, []);
+
+  const summary = useMemo(() => buildSummary(messages as never), [messages]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,11 +125,11 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby={titleId} data-agent-overlay
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-ink text-bone">
+    <div ref={rootRef} role="dialog" aria-modal="true" aria-labelledby={titleId} data-agent-overlay data-lenis-prevent
+      className="fixed inset-0 z-50 flex flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-ink text-bone">
       <header className="flex items-center justify-between border-b border-line-dark px-4 py-3 font-mono text-[11px] tracking-[0.08em] uppercase md:px-8">
         <h2 id={titleId} className="text-amber">● {labels.title}</h2>
-        <button type="button" onClick={onClose} className="min-h-11 text-muted hover:text-bone">{labels.close}</button>
+        <button type="button" onClick={close} className="min-h-11 text-muted hover:text-bone">{labels.close}</button>
       </header>
 
       <ol aria-live="polite" className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 md:px-8">
@@ -104,9 +137,9 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
           <li key={m.id}>
             {(m.parts as Array<ToolPart & { text?: string }>).map((p, i) => {
               if (p.type === 'text' && m.role === 'user')
-                return <p key={i} className="font-serif text-2xl italic md:text-4xl">{p.text}</p>;
+                return <p key={i} className="font-serif text-2xl italic [overflow-wrap:anywhere] md:text-4xl">{p.text}</p>;
               if (p.type === 'text')
-                return <p key={i} className="font-mono text-sm leading-relaxed"><span className="text-amber">agente › </span>{p.text}</p>;
+                return <p key={i} className="font-mono text-sm leading-relaxed [overflow-wrap:anywhere]"><span className="text-amber">agente › </span>{p.text}</p>;
               if (p.type === 'tool-update_scope' && p.state === 'output-available')
                 return <ScopeCard key={i} output={p.output as never} labels={labels} />;
               if (p.type === 'tool-show_project' && p.state === 'output-available') {
@@ -118,7 +151,7 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
                 ) : null;
               }
               if (p.type === 'tool-request_contact' && p.state === 'output-available')
-                return <ContactForm key={i} locale={locale} labels={labels} summary={lastScopeSummary} />;
+                return <ContactForm key={i} locale={locale} labels={labels} summary={summary} />;
               return null;
             })}
           </li>
@@ -127,7 +160,7 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
         {unavailable && (
           <li>
             <p className="font-mono text-sm text-muted">{labels.unavailable}</p>
-            <ContactForm locale={locale} labels={labels} summary={lastScopeSummary} />
+            <ContactForm locale={locale} labels={labels} summary={summary} />
           </li>
         )}
       </ol>
