@@ -39,9 +39,13 @@ export function mountHeroPackets(hero: HTMLElement, tier: ActiveTier): () => voi
     const box = canvas.getBoundingClientRect();
     const width = Math.max(1, Math.round(box.width * dpr));
     const height = Math.max(1, Math.round(box.height * dpr));
-    for (const c of [canvas, layers.bone, layers.amber, layers.grey]) {
-      c.width = width;
-      c.height = height;
+    const widthChanged = width !== cfg.width;
+    // Reatribuir width/height limpa o bitmap: só quando o tamanho mudou de fato.
+    if (width !== canvas.width || height !== canvas.height) {
+      for (const c of [canvas, layers.bone, layers.amber, layers.grey]) {
+        c.width = width;
+        c.height = height;
+      }
     }
     const measureCtx = layers.bone.getContext('2d');
     const nameLayout = measureCtx ? measureNameLayout(name, box, dpr, measureCtx) : null;
@@ -52,16 +56,18 @@ export function mountHeroPackets(hero: HTMLElement, tier: ActiveTier): () => voi
         if (layerCtx) paintName(layerCtx, nameLayout, COLORS[key]);
       }
       field = buildDensityField(layers.bone, 4);
-      name.dataset.canvasName = 'on';
     } else {
       field = () => 0;
-      delete name.dataset.canvasName;
     }
     cfg = { width, height, count: PACKET_COUNT[tier], dpr, rng };
-    packets = createPackets(cfg);
+    if (widthChanged || packets.length === 0) packets = createPackets(cfg);
+    // Desenha já, no mesmo frame, e só então esconde o nome em DOM: nunca há frame com os dois invisíveis.
+    draw();
+    if (aligned) name.dataset.canvasName = 'on';
+    else delete name.dataset.canvasName;
   };
 
-  const frame = () => {
+  const draw = () => {
     ctx.clearRect(0, 0, cfg.width, cfg.height);
     if (aligned) ctx.drawImage(layers.bone, 0, 0);
     for (const p of packets) {
@@ -72,6 +78,9 @@ export function mountHeroPackets(hero: HTMLElement, tier: ActiveTier): () => voi
       }
       drawPacket(ctx, p, dpr);
     }
+  };
+  const frame = () => {
+    draw();
     raf = requestAnimationFrame(frame);
   };
   const setRunning = (running: boolean) => {

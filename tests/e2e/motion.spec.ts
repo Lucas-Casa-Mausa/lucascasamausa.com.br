@@ -216,3 +216,91 @@ test.describe('movimento reduzido de ponta a ponta', () => {
     await expect(page.locator('#sobre [data-photo-sweep]')).toHaveCSS('opacity', '0');
   });
 });
+
+test.describe('revisão final: scroll e ciclo de vida', () => {
+  test('link direto com hash cai na seção mesmo com o movimento ligando', async ({ page }) => {
+    await page.goto('/#contato');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.waitForTimeout(800);
+    await expect(page.locator('#contato')).toBeInViewport();
+  });
+
+  test('menu mobile a partir de um caso leva à seção da home', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'só mobile');
+    await page.goto('/trabalho/threads');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.getByRole('link', { name: 'Menu', exact: true }).click();
+    await page.locator('#menu').getByRole('link', { name: 'Contato', exact: true }).click();
+    await expect(page).toHaveURL(/\/#contato$/);
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.waitForTimeout(800);
+    await expect(page.locator('#contato')).toBeInViewport();
+  });
+
+  test('voltar de um caso restaura a posição na home', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.locator('#threads').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    const before = await page.evaluate(() => window.scrollY);
+    expect(before).toBeGreaterThan(500);
+    await page.getByRole('link', { name: 'Ver caso: THREADS' }).click();
+    await expect(page).toHaveURL(/\/trabalho\/threads$/);
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+    await page.goBack();
+    await expect(page.locator('[data-hero-canvas]')).toHaveCount(1);
+    await page.waitForTimeout(1000);
+    const after = await page.evaluate(() => window.scrollY);
+    expect(Math.abs(after - before)).toBeLessThan(80);
+  });
+
+  test('navegar antes do movimento carregar não deixa Lenis órfão', async ({ page }) => {
+    let loaded = false;
+    await page.route('**/_next/static/chunks/*.js', async (route) => {
+      if (loaded) await new Promise((r) => setTimeout(r, 2500));
+      await route.continue();
+    });
+    await page.goto('/');
+    loaded = true;
+    await page.getByRole('link', { name: 'Ver caso: THREADS' }).click();
+    await expect(page).toHaveURL(/\/trabalho\/threads$/);
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/, { timeout: 15000 });
+    await page.waitForTimeout(4000);
+    await expect(page.locator('html')).toHaveClass(/\blenis\b/);
+  });
+});
+
+test.describe('revisão final: nome nunca some', () => {
+  test('nenhum frame com o nome em DOM escondido e o canvas vazio (boot e resize)', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'resize só no desktop');
+    await page.addInitScript(() => {
+      const w = window as unknown as { __blank: number };
+      w.__blank = 0;
+      const check = () => {
+        const name = document.querySelector<HTMLElement>('[data-hero-name]');
+        const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-canvas]');
+        if (name?.dataset.canvasName === 'on' && canvas && canvas.width > 1) {
+          const span = name.querySelector('span')!.getBoundingClientRect();
+          const box = canvas.getBoundingClientRect();
+          const k = canvas.width / box.width;
+          const x = Math.round((span.left - box.left + span.width * 0.1) * k);
+          const y = Math.round((span.top - box.top + span.height * 0.3) * k);
+          const size = Math.max(4, Math.round(span.height * 0.4 * k));
+          const data = canvas.getContext('2d')!.getImageData(x, y, size, size).data;
+          let alpha = 0;
+          for (let i = 3; i < data.length; i += 4) alpha += data[i];
+          if (alpha === 0) w.__blank++;
+        }
+        requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
+    });
+    await page.goto('/');
+    await expect(page.locator('[data-hero-name]')).toHaveAttribute('data-canvas-name', 'on');
+    for (const width of [1200, 1000, 1300, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.waitForTimeout(300);
+    }
+    expect(await page.evaluate(() => (window as unknown as { __blank: number }).__blank)).toBe(0);
+  });
+});
