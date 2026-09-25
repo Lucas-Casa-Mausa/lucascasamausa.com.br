@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      # Mesma versão do npm que gerou o lockfile (versões diferentes divergem nas deps opcionais).
+      - run: npm install -g npm@11.19.0
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
