@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { PresenceMark } from '@/features/agent/presence/PresenceMark';
 import { HTML_LANG, localePath, type Locale } from '@/i18n/locales';
 
 const SECTIONS = [
@@ -34,7 +35,8 @@ export async function Nav({ locale, path }: { locale: Locale; path: string }) {
             </li>
           ))}
           <li>
-            <a href="#agente" data-agent-open className="inline-flex min-h-11 items-center text-amber hover:text-bone">
+            <a href="#agente" data-agent-open className="inline-flex min-h-11 items-center gap-2 text-amber hover:text-bone">
+              <PresenceMark kind="nav" detail="sm" className="size-9" />
               {ta('nav')}
             </a>
           </li>
@@ -67,7 +69,8 @@ export async function Nav({ locale, path }: { locale: Locale; path: string }) {
             </li>
           ))}
           <li>
-            <a href="#agente" data-agent-open className="flex min-h-11 items-center text-amber">
+            <a href="#agente" data-agent-open className="flex min-h-11 items-center gap-2 text-amber">
+              <PresenceMark kind="nav" detail="sm" className="size-9" />
               {ta('nav')}
             </a>
           </li>

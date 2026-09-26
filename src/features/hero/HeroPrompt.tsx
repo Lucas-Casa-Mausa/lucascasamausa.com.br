@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { PresenceMark } from '@/features/agent/presence/PresenceMark';
 import { localePath, type Locale } from '@/i18n/locales';
 
 export async function HeroPrompt({ locale }: { locale: Locale }) {
@@ -11,7 +12,7 @@ export async function HeroPrompt({ locale }: { locale: Locale }) {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line-dark bg-ink px-4 py-3 md:static md:border-0 md:bg-transparent md:p-0"
     >
       <div className="flex items-center gap-2 border-b border-amber font-mono text-sm md:max-w-[640px]">
-        <span aria-hidden="true" className="text-amber">›</span>
+        <PresenceMark kind="prompt" detail="md" className="size-10 md:size-14" />
         <label className="sr-only" htmlFor="agent-q">{t('placeholder')}</label>
         <input id="agent-q" name="q" maxLength={1500} autoComplete="off" placeholder={t('placeholder')}
           className="min-h-11 flex-1 bg-transparent text-bone placeholder:text-muted focus:outline-none" />
