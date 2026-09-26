@@ -32,4 +32,10 @@ describe('quadro estático', () => {
     expect(size('sm')).toBeLessThan(2500);
     expect(size('md')).toBeLessThan(6000);
   });
+
+  it('o raio dos pontos acompanha o tamanho em que o SVG é exibido (no lg, ponto pequeno, não bolha)', () => {
+    // lg aparece com ~480 px: um raio de 2 px CSS vale ~0,4 unidade do viewBox.
+    for (const d of staticFrame('lg').dots) expect(d.r).toBeLessThan(1);
+    for (const d of staticFrame('md').dots) expect(d.r).toBeGreaterThan(1);
+  });
 });

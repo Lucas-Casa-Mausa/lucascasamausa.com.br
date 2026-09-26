@@ -21,6 +21,12 @@ export async function startMotion(tier: ActiveTier, signal: AbortSignal): Promis
     if (cancelled()) return () => {};
     cleanups.push(mountHeroPackets(hero, tier));
   }
+  const marks = document.querySelectorAll<HTMLElement>('[data-agent-presence]');
+  if (marks.length) {
+    const { mountMini } = await import('@/features/agent/presence/mount');
+    if (cancelled()) return () => {};
+    for (const mark of marks) cleanups.push(mountMini(mark, tier));
+  }
   const { initScroll } = await import('./scroll');
   if (cancelled()) return () => {};
   cleanups.push(await initScroll());

@@ -10,14 +10,19 @@ export type StaticFrame = {
 };
 
 const cache = new Map<Detail, StaticFrame>();
+/** Tamanho típico de exibição de cada detalhe (px CSS): converte o raio dos pontos para unidades do viewBox. */
+const DISPLAY_PX: Record<Detail, number> = { sm: 36, md: 56, lg: 480 };
 const n1 = (n: number) => Math.round(n * 10) / 10;
 
-/** Um quadro fixo do repouso (3 s depois de nascer), para o SVG do servidor e para o nível static. */
+/**
+ * Um quadro fixo do repouso, para o SVG do servidor e para o nível static. A pose foi escolhida a olho:
+ * em outras, os dois anéis do `sm` ficam quase de perfil e a forma vira um "X".
+ */
 export function staticFrame(detail: Detail): StaticFrame {
   const hit = cache.get(detail);
   if (hit) return hit;
-  const s = createPresenceState(0.6);
-  for (let i = 0; i < 90; i++) step(s, 1 / 30);
+  const s = createPresenceState(1.4);
+  for (let i = 0; i < 200; i++) step(s, 1 / 30);
   const g = createGeometry();
   buildArmillary(s, detail, g);
   const out = createProjected();
@@ -31,7 +36,7 @@ export function staticFrame(detail: Detail): StaticFrame {
   const paths = groups.flatMap((group, b) => (group.length ? [{ d: group.join(''), opacity: bucketAlpha(b), bone: b >= BUCKETS }] : []));
   const dots = Array.from({ length: out.ptCount }, (_, i) => {
     const o = i * PT_OUT_STRIDE;
-    return { cx: n1(out.pts[o]), cy: n1(out.pts[o + 1]), r: n1(out.pts[o + 4]), opacity: Math.min(1, out.pts[o + 2]), bone: out.pts[o + 3] === 1 };
+    return { cx: n1(out.pts[o]), cy: n1(out.pts[o + 1]), r: n1((out.pts[o + 4] * VIEWBOX) / DISPLAY_PX[detail]), opacity: Math.min(1, out.pts[o + 2]), bone: out.pts[o + 3] === 1 };
   });
   const frame = { paths, dots };
   cache.set(detail, frame);
