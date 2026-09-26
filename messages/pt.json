@@ -116,6 +116,12 @@
     "contactError": "Não foi possível enviar agora. Escreva para",
     "unavailable": "O agente está indisponível agora. Deixe seu contato:",
     "thinking": "Pensando…",
-    "summaryLabel": "Resumo que será enviado"
+    "summaryLabel": "Resumo que será enviado",
+    "presence": {
+      "idle": "repouso",
+      "thinking": "pensando",
+      "tool": "chamando ferramenta",
+      "speaking": "respondendo"
+    }
   }
 }

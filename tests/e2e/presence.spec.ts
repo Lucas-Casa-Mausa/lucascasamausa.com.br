@@ -90,3 +90,85 @@ test.describe('canvas das miniaturas', () => {
     await expect(prompt).toHaveAttribute('data-state', 'listening');
   });
 });
+
+test.describe('presença no chat', () => {
+  const trackStates = async (page: import('@playwright/test').Page) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __presence: string[] };
+      w.__presence = [];
+      new MutationObserver((ms) => {
+        for (const m of ms) {
+          const el = m.target as HTMLElement;
+          if (el.hasAttribute('data-presence-host')) w.__presence.push(el.dataset.state ?? '');
+        }
+      }).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+    });
+  };
+  const log = (page: import('@playwright/test').Page) =>
+    page.evaluate(() => (window as unknown as { __presence: string[] }).__presence.join(','));
+  const openFromPrompt = async (page: import('@playwright/test').Page, text: string) => {
+    const form = page.locator('form[data-agent-form]');
+    await form.getByRole('textbox').fill(text);
+    await form.getByRole('button', { name: /enviar/i }).click();
+    return page.getByRole('dialog');
+  };
+
+  test('pensando → respondendo → repouso, guiado pelo stream', async ({ page }) => {
+    await trackStates(page);
+    await page.route('**/api/agent', async (route) => {
+      await new Promise((r) => setTimeout(r, 800));
+      await route.continue();
+    });
+    await page.goto('/?motion=full');
+    const dialog = await openFromPrompt(page, 'oi');
+    await expect(dialog.getByText(/agente do portfolio do Lucas/)).toBeVisible();
+    await expect.poll(() => log(page)).toMatch(/thinking.*speaking.*idle$/);
+  });
+
+  test('a linha de status acompanha o estado (desktop)', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'status só no stage do desktop');
+    await page.route('**/api/agent', async (route) => {
+      await new Promise((r) => setTimeout(r, 800));
+      await route.continue();
+    });
+    await page.goto('/?motion=full');
+    const dialog = await openFromPrompt(page, 'oi');
+    await expect(dialog.locator('[data-presence-status]')).toContainText(/pensando/i);
+    await expect(dialog.locator('[data-presence-status]')).toContainText(/repouso/i);
+  });
+
+  test('reabrir com histórico restaurado não finge que está falando', async ({ page }) => {
+    await trackStates(page);
+    await page.goto('/?motion=full');
+    const dialog = await openFromPrompt(page, 'oi');
+    await expect(dialog.getByText(/agente do portfolio do Lucas/)).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await page.evaluate(() => ((window as unknown as { __presence: string[] }).__presence = []));
+    await page.keyboard.press('Control+k');
+    await expect(page.getByRole('dialog').getByText(/agente do portfolio do Lucas/)).toBeVisible();
+    await page.waitForTimeout(1000);
+    expect(await log(page)).not.toContain('speaking');
+  });
+
+  test('cruzar o breakpoint troca o host sem deixar dois loops', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'começa no desktop');
+    await page.goto('/?motion=full');
+    const dialog = await openFromPrompt(page, 'oi');
+    const stage = dialog.locator('[data-presence-stage] [data-presence-host]');
+    const header = dialog.locator('h2 [data-presence-host]');
+    await expect(stage).toHaveAttribute('data-running', 'true');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(header).toHaveAttribute('data-running', 'true');
+    await expect(stage.locator('canvas')).toHaveCount(0);
+    await expect(dialog.locator('canvas[data-presence-canvas]')).toHaveCount(1);
+  });
+
+  test('static: o overlay mostra o SVG e o chat funciona', async ({ page }) => {
+    await page.goto('/?motion=static');
+    const dialog = await openFromPrompt(page, 'oi');
+    await expect(dialog.getByText(/agente do portfolio do Lucas/)).toBeVisible();
+    await expect(dialog.locator('canvas[data-presence-canvas]')).toHaveCount(0);
+    await expect(dialog.locator('[data-presence-host] [data-presence-svg]').filter({ visible: true })).toHaveCount(1);
+  });
+});
