@@ -3,12 +3,13 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import Link from 'next/link';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Locale } from '@/i18n/locales';
 import { ContactForm } from './ContactForm';
 import type { AgentLabels } from './labels';
 import { presenceFromChat, pulseAmp, SPEAK_HOLD_MS, type ChatPrev } from './presence/chat-state';
 import { PresenceMark } from './presence/PresenceMark';
+import { animateClose, animateOpen, hideOrigin, type TransitionParts } from './presence/transition';
 import { usePresence } from './presence/usePresence';
 import { ScopeCard } from './ScopeCard';
 import { buildSummary } from './summary';
@@ -26,8 +27,8 @@ const load = (): UIMessage[] => {
 
 type ToolPart = { type: string; state?: string; output?: unknown };
 
-export function AgentOverlay({ locale, labels, initialText, onClose }: {
-  locale: Locale; labels: AgentLabels; initialText: string | null; onClose: () => void;
+export function AgentOverlay({ locale, labels, initialText, origin, onClose }: {
+  locale: Locale; labels: AgentLabels; initialText: string | null; origin: HTMLElement | null; onClose: () => void;
 }) {
   const titleId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -56,6 +57,28 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
   const [presenceLabel, setPresenceLabel] = useState<'idle' | 'thinking' | 'tool' | 'speaking'>('idle');
   const chatPrev = useRef<ChatPrev | null>(null);
   const lastPulse = useRef(0);
+  const closing = useRef(false);
+  const parts = useCallback((): TransitionParts | null => {
+    const root = rootRef.current;
+    if (!root) return null;
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+    const tier = document.documentElement.dataset.tier;
+    return {
+      root,
+      fades: Array.from(root.querySelectorAll<HTMLElement>('[data-overlay-fade]')),
+      target: desktop ? stageRef.current : headerMarkRef.current,
+      origin,
+      reduced: tier !== 'full' && tier !== 'lite',
+    };
+  }, [origin]);
+
+  // Abre a partir da miniatura; a miniatura de origem some enquanto o overlay existe.
+  useLayoutEffect(() => {
+    const p = parts();
+    if (p) animateOpen(p);
+    return origin ? hideOrigin(origin) : undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só na montagem
+  }, []);
 
   // Histórico por aba: restaura na montagem, salva a cada mudança.
   useEffect(() => disposeTurnstile, []);
@@ -100,9 +123,13 @@ export function AgentOverlay({ locale, labels, initialText, onClose }: {
   }, [status, messages, presence]);
 
   const close = useCallback(() => {
+    if (closing.current) return; // Esc duplo / clique duplo: fecha uma vez só
+    closing.current = true;
     if (busy) void stop();
-    onClose();
-  }, [busy, stop, onClose]);
+    const p = parts();
+    if (!p) return onClose();
+    void animateClose(p).then(onClose);
+  }, [busy, stop, onClose, parts]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

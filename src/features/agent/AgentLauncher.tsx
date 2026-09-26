@@ -4,21 +4,23 @@ import { useCallback, useEffect, useRef, useState, type ComponentType } from 're
 import type { Locale } from '@/i18n/locales';
 import type { AgentLabels } from './labels';
 
-type OverlayProps = { locale: Locale; labels: AgentLabels; initialText: string | null; onClose: () => void };
+type OverlayProps = { locale: Locale; labels: AgentLabels; initialText: string | null; origin: HTMLElement | null; onClose: () => void };
 
 /** Único JS do agente no carregamento. O overlay (e o @ai-sdk/react) só baixa na primeira abertura. */
 export function AgentLauncher({ locale, labels }: { locale: Locale; labels: AgentLabels }) {
   const [Overlay, setOverlay] = useState<ComponentType<OverlayProps> | null>(null);
   const [open, setOpen] = useState(false);
   const [initialText, setInitialText] = useState<string | null>(null);
+  const [origin, setOrigin] = useState<HTMLElement | null>(null);
 
   const opening = useRef(false);
 
-  const show = useCallback(async (text: string | null) => {
+  const show = useCallback(async (text: string | null, from: HTMLElement | null) => {
     // Um segundo submit (vazio) durante a abertura não pode apagar o texto do primeiro.
     if (opening.current && !text) return;
     opening.current = true;
     if (text || !open) setInitialText(text);
+    if (!open) setOrigin(from);
     if (!Overlay) {
       const mod = await import('./AgentOverlay');
       setOverlay(() => mod.AgentOverlay);
@@ -37,18 +39,18 @@ export function AgentLauncher({ locale, labels }: { locale: Locale; labels: Agen
       const text = (fromButton || String(new FormData(form).get('q') ?? '')).trim();
       const input = form.querySelector<HTMLInputElement>('input[name="q"]');
       if (input) input.value = '';
-      void show(text || null);
+      void show(text || null, form.querySelector<HTMLElement>('[data-agent-presence]'));
     };
     const onClick = (e: MouseEvent) => {
       const trigger = (e.target as Element).closest('[data-agent-open]');
       if (!trigger) return;
       e.preventDefault();
-      void show(null);
+      void show(null, trigger.querySelector<HTMLElement>('[data-agent-presence]'));
     };
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        void show(null);
+        void show(null, null);
       }
     };
     document.addEventListener('submit', onSubmit);
@@ -62,5 +64,5 @@ export function AgentLauncher({ locale, labels }: { locale: Locale; labels: Agen
   }, [show]);
 
   if (!Overlay || !open) return null;
-  return <Overlay locale={locale} labels={labels} initialText={initialText} onClose={() => setOpen(false)} />;
+  return <Overlay locale={locale} labels={labels} initialText={initialText} origin={origin} onClose={() => setOpen(false)} />;
 }

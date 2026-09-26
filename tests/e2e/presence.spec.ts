@@ -172,3 +172,68 @@ test.describe('presença no chat', () => {
     await expect(dialog.locator('[data-presence-host] [data-presence-svg]').filter({ visible: true })).toHaveCount(1);
   });
 });
+
+test.describe('transição', () => {
+  test('abrir pelo prompt esconde a miniatura de origem; fechar devolve', async ({ page }) => {
+    await page.goto('/?motion=full');
+    const mini = page.locator('[data-agent-presence="prompt"]');
+    const form = page.locator('form[data-agent-form]');
+    await form.getByRole('textbox').fill('oi');
+    await form.getByRole('button', { name: /enviar/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(mini).toHaveCSS('visibility', 'hidden');
+    await dialog.getByRole('button', { name: 'Fechar' }).click();
+    await expect(dialog).toBeHidden();
+    await expect(mini).toHaveCSS('visibility', 'visible');
+  });
+
+  test('Esc duplo no meio da abertura fecha uma vez e não deixa a miniatura escondida', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/?motion=full');
+    const form = page.locator('form[data-agent-form]');
+    await form.getByRole('textbox').fill('oi');
+    await form.getByRole('button', { name: /enviar/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page.locator('[data-agent-presence="prompt"]')).toHaveCSS('visibility', 'visible');
+    expect(errors).toEqual([]);
+  });
+
+  test('abrir pela nav usa a miniatura da nav como origem', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'no celular o link fica dentro do menu');
+    await page.goto('/?motion=full');
+    await page.locator('header nav a[data-agent-open]').first().click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.locator('header nav [data-agent-presence="nav"]')).toHaveCSS('visibility', 'hidden');
+  });
+
+  test('sem origem (Ctrl+K) abre e fecha normalmente', async ({ page }) => {
+    await page.goto('/?motion=full');
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  });
+
+  test.describe('com movimento reduzido', () => {
+    test.use({ reducedMotion: 'reduce' });
+    test('sem transform na abertura', async ({ page }) => {
+      await page.goto('/');
+      const form = page.locator('form[data-agent-form]');
+      await form.getByRole('textbox').fill('oi');
+      await form.getByRole('button', { name: /enviar/i }).click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const transforms = await dialog.evaluate((root) =>
+        root.getAnimations({ subtree: true }).flatMap((a) => ((a.effect as KeyframeEffect).getKeyframes() as { transform?: string }[]).map((k) => k.transform ?? '')),
+      );
+      expect(transforms.filter(Boolean)).toEqual([]);
+    });
+  });
+});
