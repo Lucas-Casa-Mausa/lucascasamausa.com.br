@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { presenceFromChat, pulseAmp } from '@/features/agent/presence/chat-state';
+import { holdSpeaking, presenceFromChat, pulseAmp, SPEAK_HOLD_MS } from '@/features/agent/presence/chat-state';
 
 const user = (text: string) => ({ role: 'user', parts: [{ type: 'text', text }] });
 const bot = (...parts: { type: string; state?: string; text?: string }[]) => ({ role: 'assistant', parts });
@@ -53,3 +53,29 @@ describe('presenceFromChat', () => {
     expect(pulseAmp(100000)).toBe(0.95);
   });
 });
+
+describe('holdSpeaking', () => {
+  const said = [user('oi'), bot({ type: 'text', text: 'Olá!' })];
+
+  it('render do streaming sem texto novo (text-end) não volta para "pensando" logo depois de falar', () => {
+    const r = presenceFromChat('streaming', said, { len: 4, status: 'streaming' });
+    expect(r.state).toBe('thinking');
+    expect(holdSpeaking(r, 100)).toEqual({ now: 'speaking', later: 'thinking', inMs: SPEAK_HOLD_MS - 100 });
+  });
+
+  it('último delta junto com o ready: fala e depois vai para o repouso (não fica preso)', () => {
+    const r = presenceFromChat('ready', said, { len: 0, status: 'submitted' });
+    expect(holdSpeaking(r, 0)).toEqual({ now: 'speaking', later: 'idle', inMs: SPEAK_HOLD_MS });
+  });
+
+  it('ferramenta em andamento mostra "pensando" na hora, mesmo logo depois de um pulso', () => {
+    const r = presenceFromChat('streaming', [user('clínica'), bot({ type: 'tool-update_scope', state: 'input-available' })], { len: 0, status: 'streaming' });
+    expect(holdSpeaking(r, 50)).toEqual({ now: 'thinking', later: null, inMs: 0 });
+  });
+
+  it('sem pulso recente, o estado passa direto', () => {
+    const r = presenceFromChat('ready', said, { len: 4, status: 'ready' });
+    expect(holdSpeaking(r, 5000)).toEqual({ now: 'idle', later: null, inMs: 0 });
+  });
+});
+

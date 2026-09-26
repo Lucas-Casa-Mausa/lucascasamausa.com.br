@@ -4,7 +4,8 @@ type Part = { type: string; state?: string; text?: string };
 type Msg = { role: string; parts: readonly Part[] };
 
 export type ChatPrev = { len: number; status: string };
-export type ChatPresence = { state: PresenceName; tool: boolean; textLen: number; delta: number };
+/** `rest`: o estado sem contar a fala (para onde ir quando "falando" termina de segurar). */
+export type ChatPresence = { state: PresenceName; rest: PresenceName; tool: boolean; textLen: number; delta: number };
 
 /** Depois do último pulso, "falando" segura esse tempo antes de voltar ao repouso. */
 export const SPEAK_HOLD_MS = 600;
@@ -25,6 +26,16 @@ export function presenceFromChat(status: string, messages: readonly Msg[], prev:
   const delta = counts ? Math.max(0, textLen - prev.len) : 0;
   const last = messages[messages.length - 1];
   const tool = isBusy(status) && last?.role === 'assistant' && last.parts.some((p) => p.type.startsWith('tool-') && !DONE.has(p.state ?? ''));
-  const state: PresenceName = delta > 0 ? 'speaking' : isBusy(status) ? 'thinking' : 'idle';
-  return { state, tool, textLen, delta };
+  const rest: PresenceName = isBusy(status) ? 'thinking' : 'idle';
+  return { state: delta > 0 ? 'speaking' : rest, rest, tool, textLen, delta };
+}
+
+/**
+ * "Falando" segura SPEAK_HOLD_MS depois do último pulso: renders do stream sem texto novo (text-end, finish)
+ * não fazem a forma voltar a "pensando", e o último delta sempre acaba em `rest`. Ferramenta rodando fura a espera.
+ */
+export function holdSpeaking(r: ChatPresence, sinceLastPulseMs: number): { now: PresenceName; later: PresenceName | null; inMs: number } {
+  if (r.tool) return { now: 'thinking', later: null, inMs: 0 };
+  if (sinceLastPulseMs < SPEAK_HOLD_MS) return { now: 'speaking', later: r.rest, inMs: SPEAK_HOLD_MS - sinceLastPulseMs };
+  return { now: r.state, later: null, inMs: 0 };
 }

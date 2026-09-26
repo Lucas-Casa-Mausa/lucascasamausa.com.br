@@ -122,7 +122,8 @@ test.describe('presença no chat', () => {
     await page.goto('/?motion=full');
     const dialog = await openFromPrompt(page, 'oi');
     await expect(dialog.getByText(/agente do portfolio do Lucas/)).toBeVisible();
-    await expect.poll(() => log(page)).toMatch(/thinking.*speaking.*idle$/);
+    // Resposta só de texto: depois do primeiro "speaking" não pode voltar a "thinking" (piscar no fim da fala).
+    await expect.poll(() => log(page)).toMatch(/^(idle,)*thinking(,thinking)*(,speaking)+(,idle)+$/);
   });
 
   test('a linha de status acompanha o estado (desktop)', async ({ page, isMobile }) => {

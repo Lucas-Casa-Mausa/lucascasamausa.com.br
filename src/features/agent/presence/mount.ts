@@ -9,6 +9,9 @@ const NOOP: PresenceHandle = { setState() {}, pulse() {}, dispose() {} };
 const LINE: Record<Detail, number> = { sm: 1.2, md: 1, lg: 1 };
 const clamp1 = (n: number) => Math.max(-1, Math.min(1, n));
 
+/** O observer pode entregar várias entradas do mesmo alvo, em ordem: vale a última. */
+export const onScreenFrom = (entries: readonly { isIntersecting: boolean }[]) => entries[entries.length - 1]?.isIntersecting ?? false;
+
 /**
  * Monta o canvas animado sobre o SVG do host. O loop só roda com o host na tela e a aba visível.
  * Qualquer erro no quadro desmonta o canvas e devolve o SVG: a animação nunca quebra a página.
@@ -74,8 +77,8 @@ export function mountPresence(host: HTMLElement, opts: { detail: Detail; idleFps
   const kick = () => {
     if (!raf && !disposed && onScreen && !document.hidden) raf = requestAnimationFrame(frame);
   };
-  const io = new IntersectionObserver(([entry]) => {
-    onScreen = entry.isIntersecting;
+  const io = new IntersectionObserver((entries) => {
+    onScreen = onScreenFrom(entries);
     kick();
   });
   io.observe(host);

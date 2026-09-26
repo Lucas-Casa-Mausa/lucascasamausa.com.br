@@ -7,7 +7,8 @@ import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useSta
 import type { Locale } from '@/i18n/locales';
 import { ContactForm } from './ContactForm';
 import type { AgentLabels } from './labels';
-import { presenceFromChat, pulseAmp, SPEAK_HOLD_MS, type ChatPrev } from './presence/chat-state';
+import { holdSpeaking, presenceFromChat, pulseAmp, type ChatPrev } from './presence/chat-state';
+import type { PresenceName } from './presence/state';
 import { PresenceMark } from './presence/PresenceMark';
 import { animateClose, animateOpen, hideOrigin, type TransitionParts } from './presence/transition';
 import { usePresence } from './presence/usePresence';
@@ -56,7 +57,7 @@ export function AgentOverlay({ locale, labels, initialText, origin, onClose }: {
   const presence = usePresence(stageRef, headerMarkRef);
   const [presenceLabel, setPresenceLabel] = useState<'idle' | 'thinking' | 'tool' | 'speaking'>('idle');
   const chatPrev = useRef<ChatPrev | null>(null);
-  const lastPulse = useRef(0);
+  const lastPulse = useRef(-Infinity);
   const closing = useRef(false);
   const parts = useCallback((): TransitionParts | null => {
     const root = rootRef.current;
@@ -109,16 +110,14 @@ export function AgentOverlay({ locale, labels, initialText, origin, onClose }: {
       presence.pulse(pulseAmp(r.delta));
       lastPulse.current = performance.now();
     }
-    const apply = () => {
-      presence.setState(r.state);
-      setPresenceLabel(r.state === 'thinking' && r.tool ? 'tool' : r.state === 'listening' ? 'idle' : r.state);
+    const apply = (n: PresenceName) => {
+      presence.setState(n);
+      setPresenceLabel(n === 'thinking' && r.tool ? 'tool' : n === 'listening' ? 'idle' : n);
     };
-    const wait = r.state === 'idle' ? lastPulse.current + SPEAK_HOLD_MS - performance.now() : 0;
-    if (wait <= 0) {
-      apply();
-      return;
-    }
-    const id = setTimeout(apply, wait);
+    const { now, later, inMs } = holdSpeaking(r, performance.now() - lastPulse.current);
+    apply(now);
+    if (!later) return;
+    const id = setTimeout(() => apply(later), inMs);
     return () => clearTimeout(id);
   }, [status, messages, presence]);
 
