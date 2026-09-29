@@ -7,7 +7,7 @@ import { HTML_LANG, LOCALES, OG_LOCALE } from '@/i18n/locales';
 import { resolveLocale } from '@/i18n/resolve-locale';
 import { fontVariables } from '@/lib/fonts';
 import { MotionBoot } from '@/lib/motion/MotionBoot';
-import { buildAlternates } from '@/lib/metadata';
+import { buildAlternates, ogImage } from '@/lib/metadata';
 import { PERSON, SITE_URL } from '@/lib/site';
 import '../globals.css';
 
@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>): Pro
       siteName: PERSON.name,
       title: t('title'),
       description: t('description'),
+      images: [ogImage(locale)],
     },
   };
 }

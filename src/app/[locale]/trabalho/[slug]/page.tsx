@@ -4,9 +4,9 @@ import { setRequestLocale } from 'next-intl/server';
 import { Nav } from '@/components/Nav';
 import { getProject, projects } from '@/content/projects';
 import { CaseStudy } from '@/features/case/CaseStudy';
-import { localePath, OG_LOCALE } from '@/i18n/locales';
+import { OG_LOCALE } from '@/i18n/locales';
 import { resolveLocale } from '@/i18n/resolve-locale';
-import { buildAlternates } from '@/lib/metadata';
+import { buildAlternates, ogImage } from '@/lib/metadata';
 import { PERSON } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       // O openGraph do filho substitui o do pai inteiro; sem isto o caso fica sem prévia ao compartilhar.
-      images: [{ url: localePath(locale, '/opengraph-image'), width: 1200, height: 630, alt: PERSON.name }],
+      images: [ogImage(locale)],
     },
   };
 }

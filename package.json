@@ -11,7 +11,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "check:denylist": "node scripts/check-denylist.mjs",
-    "lhci": "lhci autorun"
+    "lhci": "lhci autorun",
+    "og": "node scripts/og.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.63",
