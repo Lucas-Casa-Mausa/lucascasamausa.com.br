@@ -26,3 +26,15 @@ Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · next-intl
 | `RESEND_API_KEY`, `LEAD_TO_EMAIL`, `LEAD_FROM_EMAIL` | envio do lead (sem domínio verificado, use o remetente de teste do Resend). |
 | `CONTENT_DENYLIST` | termos proibidos: checagem de CI **e** filtro de saída do agente. |
 | `AGENT_ALLOW_MOCK` | só testes: habilita `AGENT_MODEL=mock:scripted`, store em memória e dispensa o Turnstile. Nunca em produção. |
+
+## Deploy (Cloudflare Workers)
+
+Build com o adaptador OpenNext (`open-next.config.ts`, `wrangler.jsonc`). O site é 100% SSG; as páginas saem dos static assets.
+
+- `npm run cf:preview` — build + Worker local no runtime da Cloudflare (`workerd`).
+- `npm run cf:deploy` — build + deploy (precisa de `npx wrangler login` antes).
+- Segredos: `npx wrangler secret put <NOME>` para `ANTHROPIC_API_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `TURNSTILE_SECRET_KEY`, `AGENT_SESSION_SECRET`, `RESEND_API_KEY`, `LEAD_TO_EMAIL`, `LEAD_FROM_EMAIL` e `CONTENT_DENYLIST` (o agente também usa a lista em tempo de execução).
+- Variáveis não secretas ficam em `vars` no `wrangler.jsonc` (já inclui `CLIENT_IP_HEADER=cf-connecting-ip`).
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` entra no **build** (vai para o JS do cliente): exporte no shell antes do `cf:deploy`.
+- Limite do plano grátis: Worker até ~3 MB comprimido (hoje ~2,9 MB; `npx wrangler deploy --dry-run` mostra o tamanho). A imagem de OG é estática por isso (`npm run og`).
+- Não ligar `enableCacheInterception` no `open-next.config.ts`: com o prefetch por segmento do Next 16 ele gera um loop de requisições.

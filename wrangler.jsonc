@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "lucascasamausa",
+  "compatibility_date": "2026-09-26",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  // Variáveis não secretas. Os segredos vão por `npx wrangler secret put <NOME>` (ver README, "Deploy").
+  "vars": {
+    "AGENT_MODEL": "anthropic:claude-haiku-4-5",
+    "CLIENT_IP_HEADER": "cf-connecting-ip"
+  },
+  "observability": { "enabled": true }
+}
