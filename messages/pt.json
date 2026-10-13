@@ -100,7 +100,7 @@
     },
     "title": "Conversa com o agente",
     "close": "Fechar",
-    "privacy": "A conversa não é armazenada. Só o que você enviar no formulário chega ao Lucas.",
+    "privacy": "O site não guarda a conversa, mas ela é processada por um modelo de IA de terceiros, que pode registrá-la. Não compartilhe dados sensíveis. Só o que você enviar no formulário chega ao Lucas.",
     "scopeTitle": "Escopo inicial",
     "scopeWeeks": "{min}–{max} semanas",
     "scopeNote": "Estimativa inicial, a confirmar com o Lucas. Orçamento só com ele.",

@@ -22,4 +22,11 @@ describe('mensagens', () => {
       }
     }
   });
+
+  it('o aviso do chat não promete que nada é registrado: a conversa passa por um modelo de terceiros', () => {
+    expect(pt.agent.privacy).toMatch(/terceiros/);
+    expect(pt.agent.privacy).not.toMatch(/não é armazenada/);
+    expect(en.agent.privacy).toMatch(/third-party/);
+    expect(en.agent.privacy).not.toMatch(/isn't stored/);
+  });
 });

@@ -2,7 +2,7 @@ import { convertToModelMessages, stepCountIs, streamText, type LanguageModel, ty
 import { clientIp } from './client-ip';
 import { buildSystemPrompt } from './knowledge';
 import { addTokens, checkRate, reserveTokens, type LimitStore } from './limits';
-import { PROVIDER_OPTIONS } from './models';
+import { providerOptions } from './models';
 import { createRedactor } from './output-filter';
 import {
   AgentRequestBody,
@@ -92,7 +92,7 @@ export async function handleAgentRequest(req: Request, deps: AgentDeps): Promise
     stopWhen: stepCountIs(MAX_STEPS),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: req.signal,
-    providerOptions: PROVIDER_OPTIONS,
+    providerOptions: providerOptions(),
     // Filtro de saída no stream: nenhum valor monetário nem termo proibido chega ao visitante.
     experimental_transform: () =>
       new TransformStream({

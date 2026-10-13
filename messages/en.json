@@ -100,7 +100,7 @@
     },
     "title": "Conversation with the agent",
     "close": "Close",
-    "privacy": "The conversation isn't stored. Only what you send in the form reaches Lucas.",
+    "privacy": "This site doesn't keep the conversation, but it is processed by a third-party AI model that may log it. Don't share sensitive data. Only what you send in the form reaches Lucas.",
     "scopeTitle": "Initial scope",
     "scopeWeeks": "{min}–{max} weeks",
     "scopeNote": "Initial estimate, to be confirmed with Lucas. Pricing only with him.",
