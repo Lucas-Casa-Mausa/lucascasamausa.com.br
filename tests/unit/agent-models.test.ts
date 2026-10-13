@@ -52,3 +52,34 @@ describe('providerOptions (modelos de reserva do OpenRouter)', () => {
     expect(providerOptions().openrouter.models).toBeUndefined();
   });
 });
+
+describe('requisição ao OpenRouter (fetch interceptado, sem rede)', () => {
+  it('envia o modelo, as reservas e a chave lida do ambiente na hora da chamada', async () => {
+    const { generateText } = await import('ai');
+    vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
+    vi.stubEnv('AGENT_MODEL', 'openrouter:a/x:free');
+    vi.stubEnv('AGENT_FALLBACK_MODELS', 'b/y:free');
+    let sent: { url: string; auth: string | null; body: Record<string, unknown> } | null = null;
+    vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+      sent = { url: String(url), auth: new Headers(init.headers).get('authorization'), body: JSON.parse(String(init.body)) };
+      return new Response(
+        JSON.stringify({
+          id: '1', object: 'chat.completion', created: 0, model: 'a/x:free',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'oi' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    try {
+      const { text } = await generateText({ model: resolveModel(), prompt: 'oi', providerOptions: providerOptions() });
+      expect(text).toBe('oi');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(sent!.url).toMatch(/^https:\/\/openrouter\.ai\/api\/v1\/chat\/completions/);
+    expect(sent!.auth).toBe('Bearer test-key');
+    expect(sent!.body.model).toBe('a/x:free');
+    expect(sent!.body.models).toEqual(['b/y:free']);
+  });
+});
